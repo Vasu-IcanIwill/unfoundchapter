@@ -1,0 +1,20 @@
+<section class="tuc-gh" aria-label="Golden hour around the world" style="position: relative; padding: 112px 0 150px;">
+<canvas id="tuc-sky" aria-hidden="true" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; pointer-events: none; -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0.12) 44px, rgba(0,0,0,0.4) 96px, rgba(0,0,0,0.75) 148px, #000 200px, #000 calc(100% - 200px), rgba(0,0,0,0.75) calc(100% - 148px), rgba(0,0,0,0.4) calc(100% - 96px), rgba(0,0,0,0.12) calc(100% - 44px), rgba(0,0,0,0) 100%); mask-image: linear-gradient(180deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0.12) 44px, rgba(0,0,0,0.4) 96px, rgba(0,0,0,0.75) 148px, #000 200px, #000 calc(100% - 200px), rgba(0,0,0,0.75) calc(100% - 148px), rgba(0,0,0,0.4) calc(100% - 96px), rgba(0,0,0,0.12) calc(100% - 44px), rgba(0,0,0,0) 100%);"></canvas>
+<div style="position: relative; z-index: 1; max-width: 1320px; margin: 0 auto; padding: 0 40px 28px; display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: flex-end; justify-content: space-between;">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Brygada 1918', Georgia, serif; font-weight: 400; font-size: 32px; color: var(--gh-fg, #1B2B4A); transition: color 0.8s ease;">Golden hour, around the world</h2>
+<p style="margin: 0; font-family: 'Roxie Rossa', 'Brygada 1918', Georgia, serif; font-style: italic; font-size: 21px; color: var(--gh-muted, #454B50); transition: color 0.8s ease;">Where the sun is setting, and the <svg role="img" aria-label="tea" viewBox="0 0 40 30" width="34" height="26" style="display: inline-block; vertical-align: -6px; margin: 0 2px; overflow: visible;"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4c-2 2 2 3 0 6"></path><path d="M16 2c-2 2 2 3 0 6"></path><path d="M22 4c-2 2 2 3 0 6"></path><path d="M6 12h22c0 6-3 10-8 11h-6c-5-1-8-5-8-11z"></path><path d="M28 14c5 0 5 6-1 6"></path><path d="M3 25c6 3 22 3 28 0"></path></g></svg> is being poured, right now.</p>
+</div>
+<span style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;"><span id="tuc-sky-label" style="font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: #B89B65;"></span><span style="font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gh-muted, #454B50); transition: color 0.8s ease;">← Drag or scroll sideways to turn the world →</span></span>
+</div>
+<div class="tuc-globe-box" style="position: relative; z-index: 1; height: 680px;">
+<canvas id="tuc-globe-canvas" tabindex="0" role="img" aria-label="A live globe showing day, night, golden hour and where you are. Drag, or scroll sideways, to turn it." style="width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; outline: none;"></canvas>
+</div>
+<div style="position: relative; z-index: 1; max-width: 1320px; margin: 0 auto; padding: 18px 40px 0; display: flex; flex-wrap: wrap; gap: 10px 28px; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--gh-muted, #454B50); transition: color 0.8s ease;">
+<span style="display: inline-flex; align-items: center; gap: 8px;"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="#B89B65"></circle></svg>The sun now</span>
+<span style="display: inline-flex; align-items: center; gap: 8px;"><svg width="22" height="4" aria-hidden="true"><line x1="0" y1="2" x2="22" y2="2" stroke="#B89B65" stroke-width="2"></line></svg>Sunset line</span>
+<span style="display: inline-flex; align-items: center; gap: 8px;"><svg width="22" height="4" aria-hidden="true"><line x1="0" y1="2" x2="22" y2="2" stroke="#96745A" stroke-width="1" stroke-dasharray="3 3"></line></svg>Sunrise line</span>
+<span style="display: inline-flex; align-items: center; gap: 8px;"><svg width="14" height="10" aria-hidden="true"><rect width="14" height="10" fill="#1B2B4A" fill-opacity="0.25"></rect></svg>Night</span>
+<span class="tuc-utc" style="margin-left: auto;"></span>
+</div>
+</section>

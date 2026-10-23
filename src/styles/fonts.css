@@ -1,0 +1,10 @@
+/* Self-hosted brand fonts (latin subset), replacing the Google Fonts stylesheet.
+   Same families and weights as before; font-display: swap is set by Fontsource. */
+@import '@fontsource/brygada-1918/latin-400.css';
+@import '@fontsource/brygada-1918/latin-400-italic.css';
+@import '@fontsource/cinzel-decorative/latin-400.css';
+@import '@fontsource/italianno/latin-400.css';
+@import '@fontsource/montserrat/latin-300.css';
+@import '@fontsource/montserrat/latin-400.css';
+@import '@fontsource/montserrat/latin-500.css';
+@import '@fontsource/montserrat/latin-600.css';

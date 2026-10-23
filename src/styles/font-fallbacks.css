@@ -1,0 +1,16 @@
+/* Metric-matched fallback fonts. While a brand font is still downloading, the system font is scaled to the
+   brand font's proportions, so the swap does not move the layout (no CLS). One face per platform font:
+   Georgia/Arial (macOS, iOS, Windows), Noto Serif/Roboto (Android), DejaVu (Linux). Metrics: Capsize for
+   Georgia, Arial, Noto Serif, Roboto and the Google fonts; Roxie Rossa and DejaVu measured from the font files. */
+@font-face{font-family:'Brygada 1918 Fallback';src:local('Georgia');size-adjust:104.76%;ascent-override:87.82%;descent-override:23.87%;line-gap-override:0.00%}
+@font-face{font-family:'Brygada 1918 Fallback Android';src:local('Noto Serif'), local('NotoSerif-Regular');size-adjust:97.09%;ascent-override:94.76%;descent-override:25.75%;line-gap-override:0.00%}
+@font-face{font-family:'Brygada 1918 Fallback Linux';src:local('DejaVu Serif'), local('DejaVuSerif');size-adjust:91.26%;ascent-override:100.81%;descent-override:27.39%;line-gap-override:0.00%}
+@font-face{font-family:'Cinzel Decorative Fallback';src:local('Georgia');size-adjust:132.12%;ascent-override:73.87%;descent-override:28.16%;line-gap-override:0.00%}
+@font-face{font-family:'Cinzel Decorative Fallback Android';src:local('Noto Serif'), local('NotoSerif-Regular');size-adjust:122.45%;ascent-override:79.70%;descent-override:30.38%;line-gap-override:0.00%}
+@font-face{font-family:'Cinzel Decorative Fallback Linux';src:local('DejaVu Serif'), local('DejaVuSerif');size-adjust:115.10%;ascent-override:84.79%;descent-override:32.32%;line-gap-override:0.00%}
+@font-face{font-family:'Roxie Rossa Fallback';src:local('Georgia');size-adjust:102.51%;ascent-override:74.33%;descent-override:32.09%;line-gap-override:0.00%}
+@font-face{font-family:'Roxie Rossa Fallback Android';src:local('Noto Serif'), local('NotoSerif-Regular');size-adjust:95.01%;ascent-override:80.20%;descent-override:34.63%;line-gap-override:0.00%}
+@font-face{font-family:'Roxie Rossa Fallback Linux';src:local('DejaVu Serif'), local('DejaVuSerif');size-adjust:89.31%;ascent-override:85.32%;descent-override:36.84%;line-gap-override:0.00%}
+@font-face{font-family:'Montserrat Fallback';src:local('Arial'), local('ArialMT'), local('Helvetica Neue'), local('Helvetica');size-adjust:112.83%;ascent-override:85.79%;descent-override:22.25%;line-gap-override:0.00%}
+@font-face{font-family:'Montserrat Fallback Android';src:local('Roboto'), local('Roboto-Regular');size-adjust:113.08%;ascent-override:85.60%;descent-override:22.20%;line-gap-override:0.00%}
+@font-face{font-family:'Montserrat Fallback Linux';src:local('DejaVu Sans'), local('DejaVuSans');size-adjust:99.34%;ascent-override:97.44%;descent-override:25.27%;line-gap-override:0.00%}

@@ -1,0 +1,109 @@
+/* The Unfound Chapter: styles for the contact, terms, privacy and 404 pages */
+body{margin:0;background:#F7F4EE}
+a{color:#1B2B4A;text-decoration:none}a:hover{color:#96745A}
+.tuc-page{display:flex;flex-direction:column;gap:44px}
+.tuc-page>*{width:100%;max-width:980px;margin-left:auto;margin-right:auto;box-sizing:border-box}
+.tuc-intro{display:flex;flex-direction:column;gap:22px;align-items:flex-start}
+.tuc-draft{margin:0;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#96745A;border:1px solid rgba(150,116,90,.4);border-radius:12px;padding:8px 14px}
+.tuc-sheet{position:relative;max-width:980px;box-sizing:border-box;padding:48px 56px 44px 92px;border-radius:4px 4px 8px 8px;background:
+ linear-gradient(90deg,transparent 70px,rgba(184,155,101,.55) 70px,rgba(184,155,101,.55) 71px,transparent 71px),
+ repeating-linear-gradient(180deg,transparent 0,transparent 33px,rgba(27,43,74,.08) 33px,rgba(27,43,74,.08) 34px),
+ linear-gradient(180deg,#FCFAF4,#F8F3E8);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 0 0 1px rgba(150,116,90,.18),0 14px 30px rgba(70,48,22,.12)}
+.tuc-legal section+section{margin-top:30px}
+.tuc-legal h2{margin:0 0 10px;font-family:'Brygada 1918',Georgia,serif;font-weight:400;font-size:24px;color:#1B2B4A}
+.tuc-legal p{margin:0 0 10px;font-family:'Roxie Rossa','Brygada 1918',Georgia,serif;font-size:17px;line-height:2;color:#454B50;max-width:720px}
+.tuc-field{display:flex;flex-direction:column;gap:8px;min-width:0}
+.tuc-field>span,.tuc-choice legend{font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#96745A;font-weight:500}
+.tuc-field input,.tuc-field select,.tuc-field textarea{font:400 15px/1.6 'Montserrat',system-ui,sans-serif;color:#1B2B4A;background:transparent;border:0;border-bottom:1px solid rgba(27,43,74,.35);border-radius:0;padding:8px 2px;outline:none;width:100%;box-sizing:border-box}
+.tuc-field textarea{resize:vertical;line-height:34px;padding-top:0}
+.tuc-field input:focus,.tuc-field select:focus,.tuc-field textarea:focus{border-bottom-color:#B89B65;box-shadow:0 1px 0 #B89B65}
+.tuc-field ::placeholder{color:rgba(69,75,80,.55)}
+.tuc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 40px;margin-top:34px}
+.tuc-wide{grid-column:1/-1}
+.tuc-choice{border:0;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.tuc-choice legend{margin-bottom:14px;padding:0}
+.tuc-choice label{position:relative;cursor:pointer}
+.tuc-choice input{position:absolute;opacity:0;width:1px;height:1px}
+.tuc-choice label>span{display:flex;flex-direction:column;gap:6px;height:100%;box-sizing:border-box;padding:16px 18px;border:1px solid rgba(150,116,90,.35);border-radius:12px;background:rgba(255,255,255,.45);transition:border-color .25s ease,background .25s ease,box-shadow .25s ease}
+.tuc-choice b{font-family:'Brygada 1918',Georgia,serif;font-weight:400;font-size:19px;color:#1B2B4A}
+.tuc-choice em{font-style:normal;font-size:12px;line-height:1.6;color:#454B50}
+.tuc-choice input:checked+span{border-color:#B89B65;background:rgba(184,155,101,.12);box-shadow:inset 0 0 0 1px #B89B65}
+.tuc-choice input:focus-visible+span{outline:2px solid #1B2B4A;outline-offset:2px}
+.tuc-consent{display:flex;gap:12px;align-items:flex-start;margin-top:30px;font-size:13px;line-height:1.8;color:#454B50}
+.tuc-consent input{margin-top:5px;accent-color:#1B2B4A}
+.tuc-consent a{border-bottom:1px solid #B89B65}
+.tuc-err{margin:4px 0 0;font-size:13px;color:#9A3B2E;grid-column:1/-1}
+.tuc-actions{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;margin-top:30px}
+.tuc-status{margin:0;font-size:13px;color:#454B50}
+.tuc-send{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 34px;border:1px solid #B89B65;border-radius:12px;background:linear-gradient(90deg,rgba(184,155,101,.22) 0%,rgba(184,155,101,0) 30%,rgba(184,155,101,0) 70%,rgba(184,155,101,.22) 100%);color:#1B2B4A;font:500 11px 'Montserrat',system-ui,sans-serif;letter-spacing:.32em;text-transform:uppercase;cursor:pointer;transition:background .35s ease,transform .35s ease,box-shadow .35s ease}
+.tuc-send:hover,.tuc-send:focus-visible{background:linear-gradient(90deg,#9C7F4E 0%,#B89B65 22%,#C8AC78 50%,#B89B65 78%,#9C7F4E 100%);color:#1B2B4A;transform:translateY(-2px);box-shadow:0 10px 26px rgba(184,155,101,.3);outline:none}
+.tuc-send:disabled{opacity:.6;cursor:progress}
+.tuc-foot{margin-top:40px}
+@media (max-width:700px){
+.tuc-head{display:grid !important;grid-template-columns:1fr 1fr;grid-template-areas:"logo logo" "l r";gap:16px 12px !important;padding:20px 20px 14px !important}
+.tuc-logo{grid-area:logo;justify-self:center}
+.tuc-nav-l{grid-area:l;gap:8px 18px !important;flex:none !important}
+.tuc-nav-r{grid-area:r;gap:8px 18px !important;flex:none !important;justify-content:flex-end}
+[style*="max-width: 1320px"]{padding-left:20px !important;padding-right:20px !important}
+.tuc-foot{padding-top:149px !important;background:linear-gradient(180deg, rgba(27,43,74,0) 0px, rgba(27,43,74,0.3) 66px, rgba(27,43,74,0.75) 116px, #1B2B4A 149px) !important}
+.tuc-page{padding-top:40px !important;gap:30px}
+.tuc-sheet{padding:34px 20px 30px 46px;background:
+ linear-gradient(90deg,transparent 30px,rgba(184,155,101,.55) 30px,rgba(184,155,101,.55) 31px,transparent 31px),
+ repeating-linear-gradient(180deg,transparent 0,transparent 31px,rgba(27,43,74,.08) 31px,rgba(27,43,74,.08) 32px),
+ linear-gradient(180deg,#FCFAF4,#F8F3E8)}
+.tuc-grid,.tuc-choice{grid-template-columns:minmax(0,1fr)}
+.tuc-send{width:100%}
+.tuc-page h1{font-size:38px !important;overflow-wrap:break-word}
+}
+
+/* handwritten ink in the enquiry form */
+.tuc-hand .tuc-field{position:relative}
+.tuc-hand .tuc-inked{color:transparent;caret-color:#1B2B4A;font-family:'Italianno',cursive;font-size:28px;line-height:24px}
+.tuc-hand textarea.tuc-inked{font-size:30px;line-height:34px}
+.tuc-hand .tuc-inked::placeholder{font:400 15px/1.6 'Montserrat','Montserrat Fallback','Montserrat Fallback Android','Montserrat Fallback Linux',system-ui,sans-serif;color:rgba(69,75,80,.55)}
+.tuc-hand .tuc-field>.tuc-ink{text-transform:none;letter-spacing:normal;font-weight:400;font-size:28px;color:#1B2B4A}
+.tuc-hand .tuc-field>.tuc-ink-area{font-size:30px}
+.tuc-ink{position:absolute;left:0;top:0;box-sizing:border-box;padding:8px 2px;border-bottom:1px solid transparent;overflow:hidden;white-space:pre;pointer-events:none;font:400 28px/24px 'Italianno',cursive;color:#1B2B4A}
+.tuc-ink-area{white-space:pre-wrap;overflow-wrap:break-word;font-size:30px;line-height:34px;padding-top:0}
+.tuc-ink .tuc-new{color:transparent;background:linear-gradient(90deg,#1B2B4A 0,#1B2B4A 50%,#B89B65 55%,rgba(184,155,101,0) 60%) 100% 0/220% 100% no-repeat;-webkit-background-clip:text;background-clip:text;animation:tucInk .45s cubic-bezier(.3,.6,.4,1) both}
+@keyframes tucInk{to{background-position:0 0}}
+@media (prefers-reduced-motion: reduce){.tuc-ink .tuc-new{animation:none;color:#1B2B4A;background:none}}
+
+/* "We write your chapter" (Dev Diwali) uses the short form: name, email, phone, travellers */
+.tuc-sheet[data-journey="dev-diwali"] .tuc-wide{display:none}
+.tuc-grid.tuc-swap{animation:tucSwap .55s ease both}
+@keyframes tucSwap{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.tuc-grid.tuc-swap{animation:none}}
+
+/* preferred dates: a from / to calendar pair */
+.tuc-dates{border:0;margin:0;padding:0}
+.tuc-dates legend{padding:0;margin-bottom:8px;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#96745A;font-weight:500}
+.tuc-range{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 40px}
+.tuc-range label{display:flex;flex-direction:column;gap:6px;min-width:0}
+.tuc-range span{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:rgba(150,116,90,.85)}
+.tuc-field input[type="date"]{min-height:42px;accent-color:#B89B65;color-scheme:light}
+.tuc-field input[type="date"]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.6}
+@media (max-width:700px){.tuc-range{gap:16px 20px}}
+
+/* phone: country code + number */
+.tuc-phone{position:static;display:flex;gap:14px;align-items:stretch}
+.tuc-phone select{flex:0 0 132px;width:132px;min-width:0;text-overflow:ellipsis}
+.tuc-phone input{flex:1 1 auto;min-width:0}
+.tuc-hand .tuc-phone>.tuc-ink{text-transform:none;letter-spacing:normal;font-weight:400;font-size:28px;color:#1B2B4A}
+@media (max-width:700px){.tuc-phone select{flex-basis:118px;width:118px}}
+
+/* form rows sit on the notepad's ruled lines: each row is a whole number of rules (--rule) */
+.tuc-sheet{--rule:34px}
+.tuc-grid{row-gap:0;margin-top:var(--rule)}
+.tuc-grid .tuc-field{gap:0}
+.tuc-grid .tuc-field>span,.tuc-grid .tuc-dates legend{display:flex;align-items:flex-end;box-sizing:border-box;height:var(--rule);margin:0;padding:0 0 7px;line-height:1}
+.tuc-grid .tuc-field input,.tuc-grid .tuc-field select{height:var(--rule);min-height:0;padding:0 2px;line-height:calc(var(--rule) - 1px)}
+.tuc-grid .tuc-err{margin:0;line-height:var(--rule)}
+.tuc-hand .tuc-grid .tuc-inked{line-height:calc(var(--rule) - 1px)}
+.tuc-hand .tuc-grid .tuc-ink{padding:0 2px;line-height:calc(var(--rule) - 1px)}
+.tuc-range{row-gap:0}
+.tuc-range label{flex-direction:row;align-items:flex-end;gap:12px}
+.tuc-range span{flex:0 0 auto;padding-bottom:7px;line-height:1}
+.tuc-range input{flex:1 1 auto;min-width:0}
+@media (max-width:700px){.tuc-sheet{--rule:32px}.tuc-range{grid-template-columns:minmax(0,1fr)}}
