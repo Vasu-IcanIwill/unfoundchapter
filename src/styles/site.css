@@ -51,3 +51,12 @@ a,button,label,select,.tuc-nb-stack{touch-action:manipulation;-webkit-tap-highli
 .tuc-nb-stack.nb-go-prev{cursor:w-resize}
 .tuc-nb-stack.nb-go-none{cursor:default}
 @media (prefers-reduced-motion: reduce){.tuc-choice label:active>span,.tuc-nb-turn:active{transform:none}}
+
+/* touch screens: brief pressed state instead of sticky hover */
+@media (hover:none){
+a:active{color:#96745A}
+.tuc-send:active,.tuc-dl:active{background:linear-gradient(90deg,#9C7F4E 0%,#B89B65 22%,#C8AC78 50%,#B89B65 78%,#9C7F4E 100%);color:#1B2B4A;transform:translateY(1px)}
+.tuc-nb-turn:active{color:#1B2B4A}
+.tuc-nb-turn:active svg path{stroke:#1B2B4A}
+.tuc-nb-turn:active .tuc-nb-ear{transform:scale(1.15)}
+}

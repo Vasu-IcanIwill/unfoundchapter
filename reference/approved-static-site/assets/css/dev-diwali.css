@@ -1,14 +1,14 @@
 /* dev-diwali page styles */
 body{margin:0;background:#F3EDE2}
-a{color:#6E5440;text-decoration:none}a:hover{color:#96745A}
-.tuc-hdr a{color:#E8DCC4}.tuc-hdr a:hover{color:#B89B65}
+a{color:#6E5440;text-decoration:none}
+.tuc-hdr a{color:#E8DCC4}
 .tuc-sheetwrap{position:relative;margin:-6px 0;height:0;overflow:hidden}
 .tuc-sheetwrap>div{will-change:transform}
 .tuc-ink{opacity:0}
 .tuc-seal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:16px;padding:0;pointer-events:none}
 .tuc-wax{position:relative;width:96px;height:96px;border-radius:47% 53% 50% 50% / 52% 48% 52% 48%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 38% 32%,#3A4E78 0%,#1B2B4A 55%,#0E1830 100%);box-shadow:0 6px 16px rgba(14,24,48,.45),inset 0 -4px 8px rgba(0,0,0,.35),inset 0 3px 6px rgba(255,255,255,.12);transition:transform .35s ease,box-shadow .35s ease}
 .tuc-wax::after{content:"";position:absolute;inset:9px;border-radius:50%;border:1px solid rgba(217,196,154,.55)}
-.tuc-seal:hover .tuc-wax,.tuc-seal:focus-visible .tuc-wax{transform:scale(1.06) rotate(-4deg);box-shadow:0 10px 24px rgba(14,24,48,.5),inset 0 -4px 8px rgba(0,0,0,.35),inset 0 3px 6px rgba(255,255,255,.12)}
+.tuc-seal:focus-visible .tuc-wax{transform:scale(1.06) rotate(-4deg);box-shadow:0 10px 24px rgba(14,24,48,.5),inset 0 -4px 8px rgba(0,0,0,.35),inset 0 3px 6px rgba(255,255,255,.12)}
 .tuc-seal:focus-visible{outline:none}.tuc-seal:focus-visible .tuc-seal-label{border-bottom-color:#1B2B4A}
 .tuc-seal-label{font-family:Montserrat,sans-serif;font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:#1B2B4A;padding-bottom:4px;border-bottom:1px solid #B89B65;background:#F3EDE2;padding-left:10px;padding-right:10px}
 .tuc-ribbon{position:absolute;left:50%;top:50%;width:22px;height:150px;transform:translate(-50%,-50%);z-index:2;background:linear-gradient(90deg,#8C6E45,#C9AE7E 30%,#E4CF9F 50%,#B89B65 75%,#7E6240);box-shadow:0 2px 6px rgba(70,48,22,.3)}
@@ -36,8 +36,8 @@ a{color:#6E5440;text-decoration:none}a:hover{color:#96745A}
 }
 .tuc-dl{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:14px;min-height:56px;padding:0 36px;border:1px solid #B89B65;border-radius:12px;color:#F7F4EE;font-size:11px;font-weight:400;letter-spacing:.34em;text-transform:uppercase;background:linear-gradient(90deg,rgba(184,155,101,0.34) 0%,rgba(184,155,101,0.10) 16%,rgba(184,155,101,0) 34%,rgba(184,155,101,0) 66%,rgba(184,155,101,0.10) 84%,rgba(184,155,101,0.34) 100%);box-shadow:inset 10px 0 18px -10px rgba(232,212,160,0.45),inset -10px 0 18px -10px rgba(232,212,160,0.45),0 6px 18px rgba(8,14,30,0.35);transition:background .35s ease,color .35s ease,transform .35s ease,box-shadow .35s ease}
 .tuc-dl svg{color:#B89B65;transition:color .35s ease}
-.tuc-dl:hover,.tuc-dl:focus-visible{background:linear-gradient(90deg,#9C7F4E 0%,#B89B65 22%,#C8AC78 50%,#B89B65 78%,#9C7F4E 100%);color:#1B2B4A;transform:translateY(-2px);box-shadow:0 10px 30px rgba(184,155,101,.28)}
-.tuc-dl:hover svg,.tuc-dl:focus-visible svg{color:#1B2B4A}
+.tuc-dl:focus-visible{background:linear-gradient(90deg,#9C7F4E 0%,#B89B65 22%,#C8AC78 50%,#B89B65 78%,#9C7F4E 100%);color:#1B2B4A;transform:translateY(-2px);box-shadow:0 10px 30px rgba(184,155,101,.28)}
+.tuc-dl:focus-visible svg{color:#1B2B4A}
 .tuc-dl:focus-visible{outline:1px solid #F7F4EE;outline-offset:4px;border-radius:12px}
 .tuc-dl::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(247,244,238,.35),transparent);transform:skewX(-18deg);opacity:0}
 .is-on .tuc-dl::after{animation:tucSheen 3.2s ease-in-out infinite}
@@ -47,4 +47,11 @@ a{color:#6E5440;text-decoration:none}a:hover{color:#96745A}
 @keyframes tucSheen{0%{left:-60%;opacity:0}10%{opacity:1}45%{left:130%;opacity:1}46%,100%{left:130%;opacity:0}}
 @keyframes tucSpark{0%,100%{opacity:0;transform:scale(.2) rotate(0)}20%{opacity:1;transform:scale(1) rotate(45deg)}40%{opacity:0;transform:scale(.3) rotate(90deg)}}
 @media (prefers-reduced-motion: reduce){.is-on .tuc-dl::after,.is-on .tuc-spark{animation:none}.is-on .tuc-spark{opacity:1;transform:none}}
-
+/* hover effects only where a real pointer can hover (mouse, trackpad); touch screens get :active instead */
+@media (hover:hover) and (pointer:fine){
+a:hover{color:#96745A}
+.tuc-hdr a:hover{color:#B89B65}
+.tuc-seal:hover .tuc-wax{transform:scale(1.06) rotate(-4deg);box-shadow:0 10px 24px rgba(14,24,48,.5),inset 0 -4px 8px rgba(0,0,0,.35),inset 0 3px 6px rgba(255,255,255,.12)}
+.tuc-dl:hover{background:linear-gradient(90deg,#9C7F4E 0%,#B89B65 22%,#C8AC78 50%,#B89B65 78%,#9C7F4E 100%);color:#1B2B4A;transform:translateY(-2px);box-shadow:0 10px 30px rgba(184,155,101,.28)}
+.tuc-dl:hover svg{color:#1B2B4A}
+}

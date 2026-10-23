@@ -117,7 +117,9 @@ export default function useStarOrbit() {
       job.raf = requestAnimationFrame(frame);
     }
 
+    // mouse / trackpad: orbit on hover. Touch and pen: orbit once on tap, as feedback (no fake hover).
     const onOver = (ev) => {
+      if (ev.pointerType && ev.pointerType !== 'mouse') return;
       const el = ev.target.closest && ev.target.closest('a,button');
       if (!el || (ev.relatedTarget && el.contains(ev.relatedTarget))) return;
       if (eligible(el)) orbit(el);
@@ -126,10 +128,17 @@ export default function useStarOrbit() {
       const el = ev.target.closest && ev.target.closest('a,button');
       if (el && el.matches(':focus-visible') && eligible(el)) orbit(el);
     };
-    document.addEventListener('mouseover', onOver);
+    const onDown = (ev) => {
+      if (ev.pointerType === 'mouse') return;
+      const el = ev.target.closest && ev.target.closest('a,button');
+      if (el && eligible(el)) orbit(el);
+    };
+    document.addEventListener('pointerover', onOver);
+    document.addEventListener('pointerdown', onDown, { passive: true });
     document.addEventListener('focusin', onFocus);
     return () => {
-      document.removeEventListener('mouseover', onOver);
+      document.removeEventListener('pointerover', onOver);
+      document.removeEventListener('pointerdown', onDown);
       document.removeEventListener('focusin', onFocus);
       running.forEach((job) => {
         cancelAnimationFrame(job.raf);

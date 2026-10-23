@@ -57,7 +57,9 @@ function orbit(el){
   }
   requestAnimationFrame(frame);
 }
-document.addEventListener('mouseover', function(ev){
+// mouse / trackpad: orbit on hover. Touch and pen: orbit once on tap, as feedback (no fake hover).
+document.addEventListener('pointerover', function(ev){
+  if (ev.pointerType && ev.pointerType !== 'mouse') return;
   var el = ev.target.closest && ev.target.closest('a,button');
   if (!el || (ev.relatedTarget && el.contains(ev.relatedTarget))) return;
   if (eligible(el)) orbit(el);
@@ -66,4 +68,9 @@ document.addEventListener('focusin', function(ev){
   var el = ev.target.closest && ev.target.closest('a,button');
   if (el && el.matches(':focus-visible') && eligible(el)) orbit(el);
 });
+document.addEventListener('pointerdown', function(ev){
+  if (ev.pointerType === 'mouse') return;
+  var el = ev.target.closest && ev.target.closest('a,button');
+  if (el && eligible(el)) orbit(el);
+}, { passive: true });
 })();
