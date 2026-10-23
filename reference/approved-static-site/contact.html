@@ -40,7 +40,6 @@
 <legend>Which <span class="tuc-cw tuc-cw-sm">chapter</span></legend>
 <label><input type="radio" name="journey" value="own"><span><b>Write your own <span class="tuc-cw">chapter</span></b><em>A private journey, planned around you</em></span></label>
 <label><input type="radio" name="journey" value="dev-diwali"><span><b>We write your <span class="tuc-cw">chapter</span></b><em>Dev Diwali in Varanasi, 23 to 25 November 2026</em></span></label>
-<label><input type="radio" name="journey" value="unsure"><span><b>Not sure yet</b><em>Tell us what you are dreaming of</em></span></label>
 <p class="tuc-err" id="err-journey" hidden>Choose one of the chapters.</p>
 </fieldset>
 <div class="tuc-grid">
@@ -81,7 +80,7 @@
 (function(){
 var form = document.getElementById('tuc-enquiry'); if (!form) return;
 var q = new URLSearchParams(location.search).get('journey');
-var map = { own: 'own', diy: 'own', 'dev-diwali': 'dev-diwali', group: 'dev-diwali', unsure: 'unsure' };
+var map = { own: 'own', diy: 'own', 'dev-diwali': 'dev-diwali', group: 'dev-diwali' };
 if (q && map[q]) { var r = form.querySelector('input[name="journey"][value="' + map[q] + '"]'); if (r) r.checked = true; }
 var grid = form.querySelector('.tuc-grid');
 function setJourney(v, animate){
@@ -178,7 +177,7 @@ form.addEventListener('submit', function(e){
   }
   if (!d.get('consent')) { show(document.getElementById('err-consent'), true); ok = false; }
   if (!ok) { var first = form.querySelector('.tuc-err:not([hidden])'); if (first) first.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
-  var labels = { own: 'Write your own chapter', 'dev-diwali': 'We write your chapter: Dev Diwali', unsure: 'Not sure yet' };
+  var labels = { own: 'Write your own chapter', 'dev-diwali': 'We write your chapter: Dev Diwali' };
   if (journey === 'dev-diwali') { d.delete('from'); d.delete('to'); }
   var fullPhone = '+' + country().dial + ' ' + phone; d.set('phone', fullPhone);
   var endpoint = form.dataset.endpoint, dest = form.dataset.email;

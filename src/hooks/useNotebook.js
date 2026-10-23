@@ -91,9 +91,21 @@ export default function useNotebook(rootRef) {
     };
     nb.addEventListener('click', onClick);
 
+    // cursor shows which way a click will turn: right half forward, left half back
+    const onMove = (e) => {
+      const r = stack.getBoundingClientRect();
+      const right = e.clientX >= r.left + r.width / 2;
+      const page = nb.getAttribute('data-page');
+      const dir = !open ? (right ? 'next' : 'none') : page === '1' ? (right ? 'next' : animated ? 'prev' : 'none') : (right ? 'none' : 'prev');
+      stack.classList.toggle('nb-go-next', dir === 'next');
+      stack.classList.toggle('nb-go-prev', dir === 'prev');
+      stack.classList.toggle('nb-go-none', dir === 'none');
+    };
+    stack.addEventListener('pointermove', onMove);
+
     if (!animated) {
       nb.classList.add('is-open');
-      return () => nb.removeEventListener('click', onClick);
+      return () => { nb.removeEventListener('click', onClick); stack.removeEventListener('pointermove', onMove); };
     }
     nb.classList.add('nb-ready');
 
@@ -144,6 +156,7 @@ export default function useNotebook(rootRef) {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
       nb.removeEventListener('click', onClick);
+      stack.removeEventListener('pointermove', onMove);
       timers.forEach(clearTimeout);
       timers.clear();
       if (raf) cancelAnimationFrame(raf);

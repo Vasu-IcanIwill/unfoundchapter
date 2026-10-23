@@ -35,3 +35,16 @@ svg:not([style*="height: 100%"]),.tuc-pcard img{filter:drop-shadow(0 1px 0 rgba(
 /* the word "chapter" is always written in the brand cursive */
 .tuc-cw{font-family:'Italianno',cursive !important;font-style:normal !important;font-weight:400 !important;font-size:1.42em;line-height:.8;letter-spacing:.01em;text-transform:none}
 .tuc-cw-sm{font-size:2.4em;letter-spacing:0}
+
+/* smoother taps: no double-tap delay, bigger header targets, gentle press feedback */
+a,button,label,select,.tuc-nb-stack{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.tuc-head nav a{position:relative}
+.tuc-head nav a::before{content:"";position:absolute;inset:-14px -10px}
+.tuc-choice label>span{transition:border-color .25s ease,background .25s ease,box-shadow .25s ease,transform .15s ease}
+.tuc-choice label:active>span{transform:scale(.985)}
+.tuc-nb-turn{transition:color .2s ease,transform .15s ease}
+.tuc-nb-turn:active{transform:translateY(1px) scale(.98)}
+.tuc-nb-stack.nb-go-next{cursor:e-resize}
+.tuc-nb-stack.nb-go-prev{cursor:w-resize}
+.tuc-nb-stack.nb-go-none{cursor:default}
+@media (prefers-reduced-motion: reduce){.tuc-choice label:active>span,.tuc-nb-turn:active{transform:none}}

@@ -3,12 +3,11 @@ import { ENQUIRY_ENDPOINT, ENQUIRY_EMAIL } from '../utils/env.js';
 import { attachHandwriting, alignToRules } from '../utils/handwriting.js';
 import { COUNTRIES, countryOf, digitsHint, phoneError, cleanPhone } from '../utils/countries.js';
 
-const JOURNEY_FROM_QUERY = { own: 'own', diy: 'own', 'dev-diwali': 'dev-diwali', group: 'dev-diwali', unsure: 'unsure' };
-const JOURNEY_LABEL = { own: 'Write your own chapter', 'dev-diwali': 'We write your chapter: Dev Diwali', unsure: 'Not sure yet' };
+const JOURNEY_FROM_QUERY = { own: 'own', diy: 'own', 'dev-diwali': 'dev-diwali', group: 'dev-diwali' };
+const JOURNEY_LABEL = { own: 'Write your own chapter', 'dev-diwali': 'We write your chapter: Dev Diwali' };
 const CHOICES = [
   { value: 'own', title: <>Write your own <span className="tuc-cw">chapter</span></>, note: 'A private journey, planned around you' },
   { value: 'dev-diwali', title: <>We write your <span className="tuc-cw">chapter</span></>, note: 'Dev Diwali in Varanasi, 23 to 25 November 2026' },
-  { value: 'unsure', title: 'Not sure yet', note: 'Tell us what you are dreaming of' },
 ];
 const EMPTY = { journey: '', name: '', email: '', cc: 'IN', phone: '', travellers: '', from: '', to: '', consent: false };
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;

@@ -21,7 +21,7 @@ a{color:#1B2B4A;text-decoration:none}a:hover{color:#96745A}
 .tuc-field ::placeholder{color:rgba(69,75,80,.55)}
 .tuc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 40px;margin-top:34px}
 .tuc-wide{grid-column:1/-1}
-.tuc-choice{border:0;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.tuc-choice{border:0;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .tuc-choice legend{margin-bottom:14px;padding:0}
 .tuc-choice label{position:relative;cursor:pointer}
 .tuc-choice input{position:absolute;opacity:0;width:1px;height:1px}
