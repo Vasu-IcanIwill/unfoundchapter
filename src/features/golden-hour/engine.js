@@ -33,7 +33,7 @@ componentWillUnmount() { clearInterval(this.timer); if (this.gRaf) cancelAnimati
 initSky(el) {
 if (!el || this.skyEl === el) return;
 this.skyEl = el; this.skyCtx = el.getContext('2d');
-const resize = () => { const r = el.getBoundingClientRect(); const d = Math.min(window.devicePixelRatio || 1, 2); el.width = Math.round(r.width * d); el.height = Math.round(r.height * d); this.skyW = r.width; this.skyH = r.height; this.skyD = d; this.buildStars();
+const resize = () => { const r = el.getBoundingClientRect(); const d = Math.min(window.devicePixelRatio || 1, 2); el.width = Math.round(r.width * d); el.height = Math.round(r.height * d); this.skyW = r.width; this.skyH = r.height; this.skyD = d; this._skyKey = ''; this.buildStars();
 // on narrow screens the heading spans the full width: keep the sun, moon and tea below it
 const head = el.nextElementSibling; this.skyClear = 0;
 if (head && r.width < 760) { this.skyClear = head.getBoundingClientRect().bottom - r.top; } };
@@ -105,6 +105,7 @@ c.restore();
 }
 drawSky(solar, t) {
 const c = this.skyCtx, el = this.skyEl; if (!c || !this.skyW) return;
+{ const sk = Math.round(solar * 240) + ':' + this.skyW + ':' + this.skyH + ':' + (this.skyClear || 0); if (sk === this._skyKey && this._skyStatic) return; this._skyKey = sk; this._skyStatic = false; }
 const W = this.skyW, H = this.skyH, d = this.skyD;
 // sky colours by local solar time: zenith, upper, lower, horizon
 const K = [
@@ -158,6 +159,7 @@ const low = Math.max(0, 1 - mp * 3);
 if (low > 0) { c.globalAlpha = night * low * 0.22; c.fillStyle = '#E8C48A'; c.beginPath(); c.arc(mx, my, R - 0.5, 0, Math.PI * 2); c.fill(); }
 c.globalAlpha = 1;
 }
+this._skyStatic = night <= 0.01 && !(solar > 4.9 && solar < 9.2);
 // text colours follow the sky
 const sec = el.parentNode;
 if (sec && sec.style) {
@@ -178,7 +180,9 @@ const COAST = '-168.0,66.0;-166.2,66.8;-164.3,67.7;-162.5,68.5;-160.7,69.3;-158.
 this.gCoast = COAST.split('|').map((r) => r.split(';').map((s) => { const p = s.split(',').map(Number); const la = p[1] * rad, lo = p[0] * rad; return [Math.cos(la) * Math.sin(lo), Math.sin(la), Math.cos(la) * Math.cos(lo)]; }));
 this.gPts = LAND.split(';').map((s) => { const p = s.split(',').map(Number); const la = p[1] * rad, lo = p[0] * rad; return [Math.cos(la) * Math.sin(lo), Math.sin(la), Math.cos(la) * Math.cos(lo), p[0], p[1]]; });
 const h = this.state && this.state.here;
-this.rot = h ? h.lon : 80; this.vel = 0; this.tilt = 18;
+this.rot = h ? h.lon : 80; this.vel = 0; this.tilt = 18; this.vS = [];
+const reduce = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (!reduce) { this.intro = { from: this.rot - 32, to: this.rot, t0: 0 }; this.rot = this.intro.from; }
 this.gCtx = el.getContext('2d');
 this.shade = document.createElement('canvas'); this.shade.width = 140; this.shade.height = 140;
 const resize = () => { const r = el.getBoundingClientRect(); const d = Math.min(window.devicePixelRatio || 1, 2); el.width = Math.round(r.width * d); el.height = Math.round(r.height * d); this.gDpr = d; this.gW = r.width; this.gH = r.height; this.shadeKey = ''; };
@@ -187,9 +191,9 @@ if (typeof ResizeObserver !== 'undefined') { this.gRO = new ResizeObserver(resiz
 let drag = null;
 const nearHere = (e) => { if (!this.hereXY) return false; const bb = el.getBoundingClientRect(); return Math.hypot(e.clientX - bb.left - this.hereXY[0], e.clientY - bb.top - this.hereXY[1]) < 20; };
 el.addEventListener('pointerleave', () => { this.hereHover = false; });
-el.addEventListener('pointerdown', (e) => { this.gTouched = true; this.downAt = [e.clientX, e.clientY]; drag = { x: e.clientX, r: this.rot, t: performance.now() }; this.vel = 0; try { el.setPointerCapture(e.pointerId); } catch (x) {} el.style.cursor = 'grabbing'; });
-el.addEventListener('pointermove', (e) => { if (!drag) { if (e.pointerType === 'mouse') { const n = nearHere(e); if (n !== this.hereHover) { this.hereHover = n; el.style.cursor = n ? 'pointer' : 'grab'; this._hot(); this.kick(); } } return; } const dx = e.clientX - drag.x; const nr = drag.r - dx * 0.32; const now = performance.now(); this.vel = (nr - this.rot) / Math.max(16, now - drag.t) * 16; drag.t = now; this.rot = nr; this._hot(); this.kick(); });
-const up = (e) => { if (!drag) return; drag = null; el.style.cursor = 'grab'; if (e && this.downAt && Math.hypot(e.clientX - this.downAt[0], e.clientY - this.downAt[1]) < 5) { this.herePinned = nearHere(e) ? !this.herePinned : false; this.vel = 0; } this._hot(); this.kick(); };
+el.addEventListener('pointerdown', (e) => { this.gTouched = true; this.downAt = [e.clientX, e.clientY]; if (this.intro) { this.rot = this.intro.to; this.intro = null; } drag = { x: e.clientX, r: this.rot, t: performance.now() }; this.vel = 0; this.vS = [{ t: drag.t, r: this.rot }]; try { el.setPointerCapture(e.pointerId); } catch (x) {} el.style.cursor = 'grabbing'; });
+el.addEventListener('pointermove', (e) => { if (!drag) { if (e.pointerType === 'mouse') { const n = nearHere(e); if (n !== this.hereHover) { this.hereHover = n; el.style.cursor = n ? 'pointer' : 'grab'; this._hot(); this.kick(); } } return; } const dx = e.clientX - drag.x; const nr = drag.r - dx * 0.32; const now = performance.now(); this.vS.push({ t: now, r: nr }); while (this.vS.length > 2 && now - this.vS[0].t > 90) this.vS.shift(); this.vel = 0; drag.t = now; this.rot = nr; this._hot(); this.kick(); });
+const up = (e) => { if (!drag) return; drag = null; { const a = this.vS[0], b = this.vS[this.vS.length - 1], now = performance.now(); if (a && b && b.t > a.t && now - b.t < 60) { this.vel = Math.max(-7, Math.min(7, (b.r - a.r) / (b.t - a.t) * 16.67)); } } el.style.cursor = 'grab'; if (e && this.downAt && Math.hypot(e.clientX - this.downAt[0], e.clientY - this.downAt[1]) < 5) { this.herePinned = nearHere(e) ? !this.herePinned : false; this.vel = 0; } this._hot(); this.kick(); };
 el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
 el.addEventListener('wheel', (e) => { const dx = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : (e.shiftKey ? e.deltaY : 0); if (!dx) return; e.preventDefault(); this.gTouched = true; this.rot += dx * 0.18; this.vel = dx * 0.04; this._hot(); this.kick(); }, { passive: false });
 el.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft') { this.vel = -2.4; this._hot(); this.kick(); e.preventDefault(); } if (e.key === 'ArrowRight') { this.vel = 2.4; this._hot(); this.kick(); e.preventDefault(); } });
@@ -201,9 +205,12 @@ kick() { if (this.gRaf) return; this.gRaf = requestAnimationFrame((t) => { this.
 // Performance: full frame rate while the globe moves, is dragged/hovered, or the info box is fading;
 // otherwise (only the slow star twinkle and tea steam change) redraw at ~30 fps. Same drawing code.
 const tgt = (this.hereHover || this.herePinned) ? 1 : 0;
-const busy = Math.abs(this.vel) > 0.01 || t < (this.gHotUntil || 0) || Math.abs(tgt - (this.boxA || 0)) > 0.01;
+const dt = Math.max(0, Math.min(50, t - (this._lastT || t))); this._lastT = t; const k = dt / 16.67;
+if (this.intro) { const I = this.intro; if (!I.t0) I.t0 = t; const p = Math.min(1, (t - I.t0) / 2200); const e = 1 - Math.pow(1 - p, 4); this.rot = I.from + (I.to - I.from) * e; if (p >= 1) this.intro = null; }
+else if (Math.abs(this.vel) > 0.004) { this.rot += this.vel * k; this.vel *= Math.pow(0.955, k); } else this.vel = 0;
+const busy = !!this.intro || Math.abs(this.vel) > 0.004 || t < (this.gHotUntil || 0) || Math.abs(tgt - (this.boxA || 0)) > 0.01;
 if (busy || !this._lastDraw || t - this._lastDraw >= 32) { this._lastDraw = t; this.drawGlobe(t); }
-if (Math.abs(this.vel) > 0.01) { this.rot += this.vel; this.vel *= 0.94; } if (this.gVisible) this.kick(); }); }
+if (this.gVisible) this.kick(); else this._lastT = 0; }); }
 _hot() { this.gHotUntil = performance.now() + 700; }
 drawGlobe(t) {
 const c = this.gCtx, el = this.gEl; if (!c || !this.gW) return;
@@ -244,14 +251,17 @@ a[k] = 0; a[k + 1] = 0; a[k + 2] = 0; a[k + 3] = Math.round(n * 255);
 }
 sc.putImageData(img, 0, 0);
 const S2 = Math.ceil(R * 2 * d); if (!this.hatchCv) this.hatchCv = document.createElement('canvas');
-const hc = this.hatchCv; hc.width = S2; hc.height = S2; const hx = hc.getContext('2d');
+if (!this.hatchBase || this.hatchBase.width !== S2) { const hb = this.hatchBase = document.createElement('canvas'); hb.width = S2; hb.height = S2; const hx = hb.getContext('2d');
 hx.setTransform(d, 0, 0, d, 0, 0); hx.lineCap = 'round';
 let sd0 = 7; const rr0 = () => { sd0 = (sd0 * 16807) % 2147483647; return sd0 / 2147483647; };
 hx.strokeStyle = 'rgba(91,70,50,0.42)'; hx.lineWidth = 0.75;
 for (let v = -2 * R; v < 2 * R; v += 4.2) { hx.beginPath(); hx.moveTo(v + rr0() * 1.5, 0); hx.lineTo(v + 2 * R + rr0() * 1.5, 2 * R); hx.stroke(); }
 hx.strokeStyle = 'rgba(91,70,50,0.22)'; hx.lineWidth = 0.6;
 for (let v = -2 * R; v < 2 * R; v += 6.5) { hx.beginPath(); hx.moveTo(v + 2 * R, 0); hx.lineTo(v + rr0() * 2, 2 * R); hx.stroke(); }
-hx.globalCompositeOperation = 'destination-in'; hx.setTransform(1, 0, 0, 1, 0, 0); hx.imageSmoothingEnabled = true; hx.drawImage(this.shade, 0, 0, S2, S2); hx.globalCompositeOperation = 'source-over';
+}
+const hc = this.hatchCv; if (hc.width !== S2) { hc.width = S2; hc.height = S2; } const hx = hc.getContext('2d');
+hx.setTransform(1, 0, 0, 1, 0, 0); hx.globalCompositeOperation = 'source-over'; hx.clearRect(0, 0, S2, S2); hx.drawImage(this.hatchBase, 0, 0);
+hx.globalCompositeOperation = 'destination-in'; hx.imageSmoothingEnabled = true; hx.drawImage(this.shade, 0, 0, S2, S2); hx.globalCompositeOperation = 'source-over';
 }
 c.save(); c.beginPath(); c.arc(cx, cy, R, 0, Math.PI * 2); c.clip();
 if (this.hatchCv) c.drawImage(this.hatchCv, cx - R, cy - R, R * 2, R * 2);
