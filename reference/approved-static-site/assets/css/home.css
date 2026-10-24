@@ -121,16 +121,19 @@ a:hover{color:#96745A}
 @media (hover:hover) and (pointer:fine){.tuc-nb-ctl:not(:disabled):hover,.tuc-nb-chip:hover{background:rgba(27,43,74,.13)}.tuc-nb-dot:hover i{box-shadow:inset 0 0 0 1px #1B2B4A}}
 .tuc-nb-ctl:not(:disabled):active,.tuc-nb-play:active,.tuc-nb-chip:active{transform:scale(.96)}
 
-/* bookmark ribbon on page 2: hover (or tap) shows a red "New voyage alert" */
-.tuc-nb-mark{position:absolute;top:-6px;right:18px;z-index:6;width:20px;height:52px;padding:0;border:0;background:none;cursor:pointer}
-.tuc-nb-mark::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#86251F 0%,#B5352D 52%,#952B25 100%);clip-path:polygon(0 0,100% 0,100% 100%,50% 79%,0 100%);transform-origin:50% 0;transition:transform .35s cubic-bezier(.3,.7,.3,1)}
+/* bookmark ribbon on page 2 with a permanent red "New voyage alert" */
+.tuc-nb-mark{position:absolute;top:-6px;right:18px;z-index:6;width:20px;height:52px;pointer-events:none}
+.tuc-nb-mark::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#86251F 0%,#B5352D 52%,#952B25 100%);clip-path:polygon(0 0,100% 0,100% 100%,50% 79%,0 100%)}
 .tuc-nb-mark::after{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:rgba(40,8,6,.35)}
-.tuc-nb-mark-tip{position:absolute;top:22px;right:calc(100% + 10px);transform:translate(6px,-50%);opacity:0;pointer-events:none;white-space:nowrap;font:600 9px Montserrat,sans-serif;letter-spacing:.26em;text-transform:uppercase;color:#B3261E;background:#FCFAF4;padding:8px 11px 8px 24px;border-radius:4px;box-shadow:0 0 0 1px rgba(179,38,30,.4),0 6px 16px rgba(70,48,22,.16);transition:opacity .25s ease,transform .25s ease}
-.tuc-nb-mark-tip::before{content:"";position:absolute;left:11px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:#D7322A;animation:tucNbPulse 1.6s ease-out infinite}
+.tuc-nb-mark-tip{position:absolute;top:36px;right:calc(100% + 10px);transform:translateY(-50%);white-space:nowrap;font:600 9px Montserrat,sans-serif;letter-spacing:.26em;text-transform:uppercase;color:#B3261E;background:#FCFAF4;padding:8px 11px 8px 24px;border-radius:4px;box-shadow:0 0 0 1px rgba(179,38,30,.4),0 6px 16px rgba(70,48,22,.16)}
+.tuc-nb-mark-tip::before,.tuc-nb-blip{content:"";position:absolute;left:11px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:#D7322A;animation:tucNbPulse 1.6s ease-out infinite}
 @keyframes tucNbPulse{0%{box-shadow:0 0 0 0 rgba(215,50,42,.55)}100%{box-shadow:0 0 0 8px rgba(215,50,42,0)}}
-.tuc-nb-mark.is-on::before,.tuc-nb-mark:focus-visible::before{transform:scaleY(1.14)}
-.tuc-nb-mark.is-on .tuc-nb-mark-tip,.tuc-nb-mark:focus-visible .tuc-nb-mark-tip{opacity:1;transform:translate(0,-50%)}
-.tuc-nb-mark:focus-visible{outline:none}
-@media (hover:hover) and (pointer:fine){.tuc-nb-mark:hover::before{transform:scaleY(1.14)}.tuc-nb-mark:hover .tuc-nb-mark-tip{opacity:1;transform:translate(0,-50%)}}
-@media (max-width:700px){.tuc-nb-mark{right:7px;width:16px;height:40px}.tuc-nb-mark-tip{top:17px}}
-@media (prefers-reduced-motion: reduce){.tuc-nb-mark-tip::before{animation:none}.tuc-nb-mark::before,.tuc-nb-mark-tip{transition:none}}
+@media (max-width:700px){.tuc-nb-mark{right:7px;width:16px;height:40px}.tuc-nb-mark-tip{top:30px}}
+/* "See the departures" on page 2: a red blip and twinkling stars mark it as new */
+.tuc-nb-new{position:relative}
+.tuc-nb-blip{position:relative;left:auto;top:auto;margin:0 0 0 2px;flex:0 0 6px}
+.tuc-nb-spark{position:absolute;opacity:0;transform:scale(.2);pointer-events:none}
+.tuc-nb[data-page="2"] .tuc-nb-spark{animation:tucNbSpark 3.2s ease-in-out infinite}
+.tuc-nb[data-page="2"] .tuc-nb-spark.s2{animation-delay:.6s}.tuc-nb[data-page="2"] .tuc-nb-spark.s3{animation-delay:1.3s}
+@keyframes tucNbSpark{0%,100%{opacity:0;transform:scale(.2) rotate(0)}20%{opacity:1;transform:scale(1) rotate(45deg)}40%{opacity:0;transform:scale(.3) rotate(90deg)}}
+@media (prefers-reduced-motion: reduce){.tuc-nb-mark-tip::before,.tuc-nb-blip{animation:none}.tuc-nb[data-page="2"] .tuc-nb-spark{animation:none;opacity:1;transform:none}}

@@ -350,19 +350,7 @@ export default function useNotebook(rootRef) {
       updateDock();
     }
 
-    // ---- bookmark on page 2: hover shows the label; a tap shows it for a few seconds
-    const mark = p2 && p2.querySelector('.tuc-nb-mark');
-    let markT = 0;
-    const onMark = (e) => {
-      e.stopPropagation();
-      mark.classList.add('is-on');
-      clearTimeout(markT);
-      markT = setTimeout(() => mark.classList.remove('is-on'), 2600);
-    };
-    if (mark) mark.addEventListener('click', onMark);
-
     const cleanupBase = () => {
-      if (mark) { mark.removeEventListener('click', onMark); clearTimeout(markT); }
       offDock.forEach((fn) => fn());
       clearTimeout(autoT);
       nb.removeEventListener('click', onClick);
