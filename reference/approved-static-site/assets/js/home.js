@@ -14,8 +14,12 @@ componentWillUnmount() { clearInterval(this.timer); if (this.gRaf) cancelAnimati
 initSky(el) {
 if (!el || this.skyEl === el) return;
 this.skyEl = el; this.skyCtx = el.getContext('2d');
-const resize = () => { const r = el.getBoundingClientRect(); const d = Math.min(window.devicePixelRatio || 1, 2); el.width = Math.round(r.width * d); el.height = Math.round(r.height * d); this.skyW = r.width; this.skyH = r.height; this.skyD = d; this.buildStars(); };
+const resize = () => { const r = el.getBoundingClientRect(); const d = Math.min(window.devicePixelRatio || 1, 2); el.width = Math.round(r.width * d); el.height = Math.round(r.height * d); this.skyW = r.width; this.skyH = r.height; this.skyD = d; this.buildStars();
+// on narrow screens the heading spans the full width: keep the sun, moon and tea below it
+const head = el.nextElementSibling; this.skyClear = 0;
+if (head && r.width < 760) { this.skyClear = head.getBoundingClientRect().bottom - r.top; } };
 resize();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => resize());
 if (typeof ResizeObserver !== 'undefined') { this.skyRO = new ResizeObserver(resize); this.skyRO.observe(el); }
 }
 buildStars() {
@@ -122,12 +126,12 @@ c.fillStyle = bloom; c.fillRect(0, 0, W, H);
 { const sk = this.sketchOrb('sun'); c.globalAlpha = al; c.drawImage(sk.cv, x - sk.S / 2, y - sk.S / 2, sk.S, sk.S); c.globalAlpha = 1; }
 if (warm > 0) { c.globalAlpha = warm * al * 0.25; c.fillStyle = '#C9A27A'; c.beginPath(); c.arc(x, y, R - 1, 0, Math.PI * 2); c.fill(); c.globalAlpha = 1; }
 };
-if (solar > 4.9 && solar < 9.2) { const p = (solar - 4.9) / 4.3; const al = Math.min(1, (solar - 4.9) / 0.6) * Math.min(1, (9.2 - solar) / 0.8); this.drawTea(c, W * 0.86, H * (0.98 - p * 0.72), al, t); }
-if (solar > 15.4 && solar < 18.3) { const p = (18.3 - solar) / 2.9; const al = Math.min(1, (18.3 - solar) / 0.6) * Math.min(1, (solar - 15.4) / 1.2); sunAt(W * 0.84, H * (0.97 - p * 0.55), Math.max(0, 1 - p * 1.6), al); }
+if (solar > 4.9 && solar < 9.2) { const p = (solar - 4.9) / 4.3; const al = Math.min(1, (solar - 4.9) / 0.6) * Math.min(1, (9.2 - solar) / 0.8); this.drawTea(c, W * 0.86, Math.max(H * (0.98 - p * 0.72), (this.skyClear || 0) + 40), al, t); }
+if (solar > 15.4 && solar < 18.3) { const p = (18.3 - solar) / 2.9; const al = Math.min(1, (18.3 - solar) / 0.6) * Math.min(1, (solar - 15.4) / 1.2); sunAt(W * 0.84, Math.max(H * (0.97 - p * 0.55), (this.skyClear || 0) + 48), Math.max(0, 1 - p * 1.6), al); }
 // the moon: rising on the right after dusk, climbing through the night
 if (night > 0.02) {
 const mp = solar >= 18 ? (solar - 18) / 8 : (solar + 6) / 8;
-const R = 44, mx = W * 0.8, my = H * (0.9 - Math.min(1, mp) * 0.62);
+const R = 44, mx = W * 0.8, my = Math.max(H * (0.9 - Math.min(1, mp) * 0.62), (this.skyClear || 0) + R + 18);
 const halo = c.createRadialGradient(mx, my, R * 0.9, mx, my, R * 5); halo.addColorStop(0, 'rgba(239,230,211,' + (0.14 * night) + ')'); halo.addColorStop(1, 'rgba(239,230,211,0)');
 c.fillStyle = halo; c.fillRect(mx - R * 5, my - R * 5, R * 10, R * 10);
 const low = Math.max(0, 1 - mp * 3);

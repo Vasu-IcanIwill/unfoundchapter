@@ -112,3 +112,6 @@ a{color:#1B2B4A;text-decoration:none}
 a:hover{color:#96745A}
 .tuc-send:hover{background:linear-gradient(90deg,#9C7F4E 0%,#B89B65 22%,#C8AC78 50%,#B89B65 78%,#9C7F4E 100%);color:#1B2B4A;transform:translateY(-2px);box-shadow:0 10px 26px rgba(184,155,101,.3);outline:none}
 }
+
+/* date boxes line up: both labels take the same width */
+.tuc-range span{flex:0 0 38px;width:38px}

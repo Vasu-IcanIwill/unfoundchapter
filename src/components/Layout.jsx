@@ -1,12 +1,15 @@
+import { useEffect } from 'react';
 import RawHtml from './RawHtml.jsx';
 import { html } from '../content/index.js';
 import useHeaderState from '../hooks/useHeaderState.js';
 import useStarOrbit from '../hooks/useStarOrbit.js';
+import { initMobileMenu } from '../utils/mobileMenu.js';
 
 /** Shared page chrome: the matted invitation frame, sticky-header state, star orbit on hover, skip link. */
 export default function Layout({ variant = 'home', children }) {
   useHeaderState();
   useStarOrbit();
+  useEffect(() => initMobileMenu(), []);
   return (
     <>
       <a className="tuc-skip" href="#main">Skip to content</a>

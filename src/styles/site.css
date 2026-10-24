@@ -60,3 +60,33 @@ a:active{color:#96745A}
 .tuc-nb-turn:active svg path{stroke:#1B2B4A}
 .tuc-nb-turn:active .tuc-nb-ear{transform:scale(1.15)}
 }
+
+/* phones: a slightly smaller header logo leaves more room for the page */
+@media (max-width:700px){.tuc-logo-mark{width:120px;height:67px}}
+
+/* phone menu: two-line button on the left of the header, panel slides in from the left */
+.tuc-menu-btn{display:none;align-items:center;justify-content:center;flex-direction:column;gap:7px;width:44px;height:44px;margin:0;padding:0;border:0;background:none;color:#1B2B4A;cursor:pointer}
+.tuc-menu-btn span{display:block;width:22px;height:1.5px;border-radius:1px;background:currentColor;transition:transform .3s ease,width .3s ease}
+.tuc-menu-btn span:last-child{width:16px;margin-right:6px}
+.tuc-hdr .tuc-menu-btn{color:#F7F4EE}
+.tuc-menu-btn:focus-visible{outline:1px solid #B89B65;outline-offset:2px}
+@media (max-width:700px){
+html body .tuc-head{grid-template-columns:44px 1fr 44px !important;grid-template-areas:"menu logo ." !important;align-items:center !important;gap:0 8px !important;padding:14px 16px 12px !important}
+html body .tuc-nav-l,html body .tuc-nav-r{display:none !important}
+.tuc-menu-btn{display:inline-flex;grid-area:menu}
+html body .tuc-logo{grid-area:logo;justify-self:center}
+}
+.tuc-menu{position:fixed;inset:0;z-index:9990}
+.tuc-menu-scrim{position:absolute;inset:0;background:rgba(27,43,74,.38);opacity:0;transition:opacity .35s ease}
+.tuc-menu-panel{position:absolute;top:0;bottom:0;left:0;width:min(84vw,340px);box-sizing:border-box;display:flex;flex-direction:column;padding:calc(var(--mat) + 18px + env(safe-area-inset-top,0px)) 28px calc(var(--mat) + 22px + env(safe-area-inset-bottom,0px)) calc(var(--mat) + 18px + env(safe-area-inset-left,0px));background:#F7F4EE;box-shadow:12px 0 40px rgba(14,24,48,.22);transform:translateX(-102%);transition:transform .38s cubic-bezier(.3,.7,.2,1)}
+.tuc-menu.is-open .tuc-menu-scrim{opacity:1}
+.tuc-menu.is-open .tuc-menu-panel{transform:none}
+.tuc-menu-close{align-self:flex-start;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:-6px 0 18px -12px;padding:0;border:0;background:none;color:#1B2B4A;cursor:pointer}
+.tuc-menu-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.tuc-menu-list li{border-bottom:1px solid rgba(184,155,101,.45)}
+.tuc-menu-list a{display:block;padding:18px 2px;font-family:'Brygada 1918','Brygada 1918 Fallback','Brygada 1918 Fallback Android','Brygada 1918 Fallback Linux',Georgia,serif;font-size:26px;line-height:1.15;color:#1B2B4A !important;text-decoration:none}
+.tuc-menu-list a.is-cta{color:#96745A !important}
+.tuc-menu-list a:active{color:#96745A !important}
+.tuc-menu-foot{margin:auto 0 0;padding-top:24px;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#96745A}
+html.tuc-menu-lock,html.tuc-menu-lock body{overflow:hidden}
+@media (prefers-reduced-motion: reduce){.tuc-menu-scrim,.tuc-menu-panel,.tuc-menu-btn span{transition:none}}

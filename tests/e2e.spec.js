@@ -345,3 +345,19 @@ test('choosing "We write your chapter" switches to the short form', async ({ pag
   await expect(page.locator('input[name="from"]')).toBeHidden();
 });
 
+
+test('phone menu: the = button opens every header link and closes again', async ({ browser }) => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  const page = await ctx.newPage();
+  await page.goto('/');
+  await expect(page.locator('.tuc-nav-l')).toBeHidden();
+  const btn = page.locator('.tuc-menu-btn');
+  await expect(btn).toBeVisible();
+  await btn.click();
+  await expect(btn).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('.tuc-menu-list a')).toHaveText(['Journeys', 'Group Trips', 'Concierge', 'Enquire']);
+  await page.keyboard.press('Escape');
+  await expect(btn).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.locator('#tuc-menu')).toBeHidden();
+  await ctx.close();
+});
