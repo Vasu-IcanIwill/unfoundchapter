@@ -147,12 +147,13 @@ test('notepad: cover opens only when fully in view, then pages turn on click', a
   await page.waitForTimeout(1200);
   await page.locator('.tuc-nb-p2 .tuc-nb-turn').click();
   await expect(nb).toHaveAttribute('data-page', '1');
-  // scrolling down while page 1 is open lifts the page part way (a peek at the next page)
+  // scrolling no longer lifts page 1 (the peek was removed); the page stays flat
   await page.waitForTimeout(1200);
   await page.mouse.wheel(0, 160);
-  await expect.poll(() => nb.evaluate((el) => parseFloat(el.style.getPropertyValue('--nb-peek') || '0'))).toBeGreaterThan(5);
+  await page.waitForTimeout(400);
+  expect(await page.locator('.tuc-nb-p1').evaluate((el) => el.style.transform)).toBe('');
   await page.mouse.wheel(0, -160);
-  await expect.poll(() => nb.evaluate((el) => parseFloat(el.style.getPropertyValue('--nb-peek') || '0'))).toBeLessThan(1);
+  await page.waitForTimeout(600);
   // tap zones: right half turns forward, left half turns back, back again from page 1 to the cover
   const box = await page.locator('.tuc-nb-stack').boundingBox();
   const at = (fx) => page.mouse.click(box.x + box.width * fx, box.y + box.height * 0.3);

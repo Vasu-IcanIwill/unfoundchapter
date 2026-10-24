@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { prefersReducedMotion } from '../utils/star.js';
 
-const PEEK_MAX = 68; // degrees page 1 lifts while scrolling down
 const DUR = 900; // one full page turn, ms
 /**
  * "Two ways to begin" notepad, read like a book (pages turn right to left).
@@ -9,7 +8,6 @@ const DUR = 900; // one full page turn, ms
  * passes the spine, shades itself as it lifts and casts a shadow on the page underneath.
  *  - the indigo cover opens by itself when the whole notepad is on screen (or, if taller than the screen,
  *    when its top reaches the header) and the visitor has paused there for 650ms,
- *  - scrolling down while page 1 is open lifts the page part way: a peek at the next page,
  *  - a click on the right half turns forward (cover > page 1 > page 2); a click on the left half turns back,
  *  - the page can be dragged with a finger or the mouse: it follows the pointer and either completes the
  *    turn (past 30% of the way, or on a quick flick) or falls back,
@@ -352,7 +350,19 @@ export default function useNotebook(rootRef) {
       updateDock();
     }
 
+    // ---- bookmark on page 2: hover shows the label; a tap shows it for a few seconds
+    const mark = p2 && p2.querySelector('.tuc-nb-mark');
+    let markT = 0;
+    const onMark = (e) => {
+      e.stopPropagation();
+      mark.classList.add('is-on');
+      clearTimeout(markT);
+      markT = setTimeout(() => mark.classList.remove('is-on'), 2600);
+    };
+    if (mark) mark.addEventListener('click', onMark);
+
     const cleanupBase = () => {
+      if (mark) { mark.removeEventListener('click', onMark); clearTimeout(markT); }
       offDock.forEach((fn) => fn());
       clearTimeout(autoT);
       nb.removeEventListener('click', onClick);
@@ -387,26 +397,10 @@ export default function useNotebook(rootRef) {
       const r = nb.getBoundingClientRect();
       return r.bottom < headTop() || r.top > window.innerHeight;
     }
-    function peek() {
-      if (page !== 1 || busy || drag) return;
-      const y = window.scrollY;
-      if (y < peekFrom) peekFrom = y;
-      const deg = Math.min(PEEK_MAX, ((y - peekFrom) / Math.max(240, window.innerHeight * 0.4)) * PEEK_MAX);
-      if (Math.abs(deg - peekDeg) < 0.05) return;
-      peekDeg = deg;
-      nb.style.setProperty('--nb-peek', deg.toFixed(2));
-      st.get(p1).tok++;
-      if (deg > 0) lift(p1);
-      paint(p1, -deg);
-      if (deg <= 0) settleZ(p1);
-      nb.classList.toggle('nb-lifted', deg > 1);
-      settle = cancel(settle);
-    }
     function check() {
       raf = 0;
       if (page >= 1 || manualClosed) {
         if (gone()) { if (auto && stopAuto.setAuto) stopAuto.setAuto(false); if (page >= 1) goTo(0, { instant: true }); manualClosed = false; }
-        else peek();
         return;
       }
       if (fully()) {
