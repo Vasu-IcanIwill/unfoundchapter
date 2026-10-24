@@ -112,6 +112,10 @@ export default function ContactForm() {
         body.set('chapter', label);
         body.set('phone', `+${countryOf(values.cc).dial} ${values.phone}`);
         if (values.journey === 'dev-diwali') { body.delete('from'); body.delete('to'); }
+        body.set('_subject', `New enquiry: ${label}`);
+        body.set('_template', 'table');
+        body.set('_captcha', 'false');
+        body.set('_replyto', values.email.trim());
         const res = await fetch(ENQUIRY_ENDPOINT, { method: 'POST', body, headers: { Accept: 'application/json' }, signal: ctrl.signal });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         setValues(EMPTY);

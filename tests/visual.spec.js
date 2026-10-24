@@ -12,8 +12,9 @@ const APPROVED = 'http://127.0.0.1:4176';
 const FIXED = new Date('2026-10-21T14:30:00Z');
 const VIEWPORTS = [[1440, 900], [768, 1024], [390, 844]];
 const PAGES = [['index', '/'], ['dev-diwali', '/dev-diwali.html'], ['contact', '/contact.html'], ['terms', '/terms.html'], ['privacy', '/privacy.html'], ['404', '/404.html']];
-// Approved, intentional content differences (see MIGRATION_REPORT.md): privacy now says fonts are self-hosted.
-const ALLOWED = { privacy: 0.15 };
+// Approved, intentional content differences (see MIGRATION_REPORT.md): privacy now says fonts are self-hosted
+// and names FormSubmit, the service that emails enquiries to the studio.
+const ALLOWED = { privacy: 0.2 };
 const LIMIT = 0.001; // 0.1% of pixels
 
 async function capture(browser, base, path, width, height) {

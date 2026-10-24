@@ -255,14 +255,23 @@ test.describe('enquiry form', () => {
     await expect(page.locator('textarea[name="message"]')).toHaveCount(0);
   });
 
-  test('without a configured destination it says the enquiry was not sent', async ({ page }) => {
+  test('enquiries are emailed to the studio mailbox through FormSubmit', async ({ page }) => {
+    let sent = null;
+    await page.route('https://formsubmit.co/**', async (route) => {
+      sent = { url: route.request().url(), body: route.request().postData() || '' };
+      await route.fulfill({ status: 200, contentType: 'application/json', body: '{"success":"true"}' });
+    });
     await page.goto('/contact.html?journey=own');
     await page.fill('input[name="name"]', 'Asha');
     await page.fill('input[name="email"]', 'asha@example.com');
     await page.fill('input[name="phone"]', '9876543210');
     await page.check('input[name="consent"]');
     await page.getByRole('button', { name: 'Request invite' }).click();
-    await expect(page.locator('.tuc-status')).toHaveText(/not switched on yet/);
+    await expect(page.locator('.tuc-status')).toHaveText(/Thank you/);
+    expect(sent.url).toBe('https://formsubmit.co/ajax/unfoundchapter@gmail.com');
+    expect(sent.body).toContain('Asha');
+    expect(sent.body).toContain('asha@example.com');
+    expect(sent.body).toContain('+91 9876543210');
   });
 });
 

@@ -18,6 +18,6 @@ export const PRIVACY = [
   { id: 'share', h: 'Who we share it with', ps: ['To arrange your journey, we share the necessary details with the hotels, transport providers and guides involved. We ask each of them to look after your information carefully.'] },
   { id: 'retention', h: 'How long we keep it', ps: ['We keep enquiry details for [RETENTION PERIOD] and booking records for as long as the law requires.'] },
   { id: 'rights', h: 'Your choices', ps: ['You can ask us at any time to see, correct or delete the details we hold about you, in line with applicable Indian law, including the Digital Personal Data Protection Act, 2023.'] },
-  { id: 'website', h: 'This website', ps: ['This website does not use advertising or tracking cookies, and its fonts are served from this website rather than a third party. If enquiries are sent through a form service, that service receives the details you submit.'] },
+  { id: 'website', h: 'This website', ps: ['This website does not use advertising or tracking cookies, and its fonts are served from this website rather than a third party. Enquiries from the contact form are delivered to our mailbox by FormSubmit (formsubmit.co), which receives the details you submit in order to forward them.'] },
   { id: 'contact', h: 'Contact', ps: ['For any question about your details, write to [EMAIL].'] },
 ];
