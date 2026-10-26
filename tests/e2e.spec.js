@@ -83,9 +83,13 @@ test('navigation targets are the agreed pages', async ({ page }) => {
   await expect(page).toHaveURL(/\/dev-diwali\.html$/);
 });
 
-test('the brochure PDF is no longer published', async ({ page, request }) => {
+test('the brochure button stays but nothing downloads yet', async ({ page, request }) => {
   await page.goto('/dev-diwali.html');
-  await expect(page.locator('a.tuc-dl')).toHaveCount(0);
+  const btn = page.locator('a.tuc-dl');
+  await expect(btn).toHaveCount(1);
+  await expect(btn).not.toHaveAttribute('href', /.*/);
+  await expect(btn).not.toHaveAttribute('download', /.*/);
+  await expect(page.locator('#tuc-dl-soon')).toHaveText('Coming soon');
   await expect(page.locator('a[href$=".pdf"]')).toHaveCount(0);
   expect((await request.get('/docs/The-Unfound-Chapter-Dev-Diwali-Itinerary.pdf')).status()).toBe(404);
 });
