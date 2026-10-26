@@ -56,9 +56,9 @@ let wired = false;
 function render(){
   const v = comp.renderVals();
   const el = document.getElementById('tuc-dl');
-  el.classList.toggle('is-on', v.dlOn === 'is-on');
+  if (el) el.classList.toggle('is-on', v.dlOn === 'is-on');
   document.querySelectorAll('[data-scroll]').forEach(x => x.classList.toggle('is-open', v.scrollCls === 'is-open'));
-  if (!wired) { wired = true; v.setDl(el); v.setScrollStage(document.getElementById('tuc-scroll-stage')); }
+  if (!wired) { wired = true; if (el) v.setDl(el); v.setScrollStage(document.getElementById('tuc-scroll-stage')); }
 }
 render();
 if (comp.componentDidMount) comp.componentDidMount();

@@ -90,3 +90,7 @@ html body .tuc-logo{grid-area:logo;justify-self:center}
 .tuc-menu-foot{margin:auto 0 0;padding-top:24px;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:#96745A}
 html.tuc-menu-lock,html.tuc-menu-lock body{overflow:hidden}
 @media (prefers-reduced-motion: reduce){.tuc-menu-scrim,.tuc-menu-panel,.tuc-menu-btn span{transition:none}}
+
+/* phones: the browser toolbar slides away while scrolling and fixed layers are only resized once scrolling stops,
+   so size the frame and paper to the largest screen height to keep the bottom edge from showing mid-screen */
+@media (hover:none) and (pointer:coarse){body::before,.tuc-frame{box-sizing:border-box;bottom:auto;height:100vh;height:100lvh}}

@@ -83,15 +83,11 @@ test('navigation targets are the agreed pages', async ({ page }) => {
   await expect(page).toHaveURL(/\/dev-diwali\.html$/);
 });
 
-test('brochure download link serves the PDF', async ({ page, request }) => {
+test('the brochure PDF is no longer published', async ({ page, request }) => {
   await page.goto('/dev-diwali.html');
-  const link = page.locator('a.tuc-dl');
-  await expect(link).toHaveAttribute('download', /.*/);
-  const href = await link.getAttribute('href');
-  const r = await request.get(href);
-  expect(r.status()).toBe(200);
-  expect(r.headers()['content-type']).toContain('application/pdf');
-  expect((await r.body()).subarray(0, 4).toString()).toBe('%PDF');
+  await expect(page.locator('a.tuc-dl')).toHaveCount(0);
+  await expect(page.locator('a[href$=".pdf"]')).toHaveCount(0);
+  expect((await request.get('/docs/The-Unfound-Chapter-Dev-Diwali-Itinerary.pdf')).status()).toBe(404);
 });
 
 test('unknown pages return the 404 page with status 404', async ({ request }) => {
@@ -182,7 +178,7 @@ test('notepad: cover opens only when fully in view, then pages turn on click', a
   await expect(nb).toHaveClass(/is-open/, { timeout: 4000 });
 });
 
-test('Dev Diwali scroll unrolls as the page scrolls and the download button twinkles in view', async ({ page }) => {
+test('Dev Diwali scroll unrolls as the page scrolls', async ({ page }) => {
   await page.goto('/dev-diwali.html');
   const stage = page.locator('#tuc-scroll-stage');
   const top = await stage.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
@@ -194,8 +190,6 @@ test('Dev Diwali scroll unrolls as the page scrolls and the download button twin
   }
   expect(heights[0]).toBeLessThan(5);
   expect(Math.max(...heights)).toBeGreaterThan(400);
-  await page.locator('#itinerary').scrollIntoViewIfNeeded();
-  await expect(page.locator('#tuc-dl')).toHaveClass(/is-on/);
 });
 
 test('star orbit appears on hover and cleans up', async ({ page }) => {
@@ -304,8 +298,6 @@ test('cache headers (vercel.json, emulated locally)', async ({ request }) => {
   const htmlBody = await html.text();
   const asset = htmlBody.match(/\/assets\/[\w.-]+\.(?:js|css)/)[0];
   expect((await request.get(asset)).headers()['cache-control']).toBe('public, max-age=31536000, immutable');
-  const pdf = await request.get('/docs/The-Unfound-Chapter-Dev-Deepawali-Itinerary.pdf');
-  expect(pdf.headers()['cache-control']).toBe('public, max-age=0, must-revalidate'); // unversioned URL
 });
 
 test('SEO basics: canonical, Open Graph, robots and sitemap', async ({ page, request }) => {
