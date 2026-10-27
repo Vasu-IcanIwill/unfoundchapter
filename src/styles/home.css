@@ -28,7 +28,7 @@ a{color:#1B2B4A;text-decoration:none}
 #journeys{padding-bottom:56px !important}
 .tuc-strip > div:last-child{flex-direction:column !important;gap:12px !important}
 .tuc-hero1{min-height:0 !important;padding-bottom:20px !important;gap:36px !important}
-.tuc-journal{flex:0 0 150px !important;width:150px !important;margin:-6px 0 10px auto !important}
+.tuc-journal{flex:0 0 150px !important;width:150px !important;margin:-6px auto 10px !important}
 .tuc-chapters{padding:24px 20px 60px !important}
 .tuc-pgrid{grid-template-columns:minmax(0,1fr) !important;gap:34px !important}
 #enquire{padding-bottom:20px !important}
