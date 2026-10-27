@@ -250,7 +250,29 @@ test.describe('enquiry form', () => {
     await from.fill('2001-01-01');
     await page.getByRole('button', { name: 'Request invite' }).click();
     await expect(page.locator('#err-dates')).toHaveText('Choose dates from today onwards.');
-    await expect(page.locator('textarea[name="message"]')).toHaveCount(0);
+    await expect(page.locator('textarea[name="message"]')).toHaveCount(1);
+  });
+
+  test('Dev Deepawali hides the dates field and shows the fixed dates', async ({ page }) => {
+    await page.goto('/contact.html?journey=dev-diwali');
+    await expect(page.locator('.tuc-dates')).toBeHidden();
+    await expect(page.locator('.tuc-fixed')).toBeVisible();
+    await expect(page.locator('.tuc-fixed')).toContainText('23 to 25 November 2026');
+    await page.locator('input[name="journey"][value="own"]').check({ force: true });
+    await expect(page.locator('.tuc-dates')).toBeVisible();
+    await expect(page.locator('.tuc-fixed')).toBeHidden();
+  });
+
+  test('a failed send points to WhatsApp and email', async ({ page }) => {
+    await page.route('https://formsubmit.co/**', (route) => route.fulfill({ status: 500, body: 'no' }));
+    await page.goto('/contact.html?journey=own');
+    await page.fill('input[name="name"]', 'Asha');
+    await page.fill('input[name="email"]', 'asha@example.com');
+    await page.fill('input[name="phone"]', '9876543210');
+    await page.check('input[name="consent"]');
+    await page.getByRole('button', { name: 'Request invite' }).click();
+    await expect(page.locator('.tuc-status a[href^="https://wa.me/919147746406"]')).toBeVisible();
+    await expect(page.locator('.tuc-status a[href="mailto:hello@unfoundchapter.com"]')).toBeVisible();
   });
 
   test('enquiries are emailed to the studio mailbox through FormSubmit', async ({ page }) => {
@@ -263,13 +285,15 @@ test.describe('enquiry form', () => {
     await page.fill('input[name="name"]', 'Asha');
     await page.fill('input[name="email"]', 'asha@example.com');
     await page.fill('input[name="phone"]', '9876543210');
+    await page.fill('textarea[name="message"]', 'One guest is vegetarian.');
     await page.check('input[name="consent"]');
     await page.getByRole('button', { name: 'Request invite' }).click();
-    await expect(page.locator('.tuc-status')).toHaveText(/Thank you/);
+    await expect(page.locator('.tuc-status')).toHaveText('Thank you. A planner will write to you within one working day.');
     expect(sent.url).toBe('https://formsubmit.co/ajax/unfoundchapter@gmail.com');
     expect(sent.body).toContain('Asha');
     expect(sent.body).toContain('asha@example.com');
     expect(sent.body).toContain('+91 9876543210');
+    expect(sent.body).toContain('One guest is vegetarian.');
   });
 });
 

@@ -4,12 +4,12 @@ import { attachHandwriting, alignToRules } from '../utils/handwriting.js';
 import { COUNTRIES, countryOf, digitsHint, phoneError, cleanPhone } from '../utils/countries.js';
 
 const JOURNEY_FROM_QUERY = { own: 'own', diy: 'own', 'dev-diwali': 'dev-diwali', group: 'dev-diwali' };
-const JOURNEY_LABEL = { own: 'Write your own chapter', 'dev-diwali': 'We write your chapter: Dev Diwali' };
+const JOURNEY_LABEL = { own: 'Write your own chapter', 'dev-diwali': 'We write your chapter: Dev Deepawali' };
 const CHOICES = [
   { value: 'own', title: <>Write your own <span className="tuc-cw">chapter</span></>, note: 'A private journey, planned around you' },
-  { value: 'dev-diwali', title: <>We write your <span className="tuc-cw">chapter</span></>, note: 'Dev Diwali in Varanasi, 23 to 25 November 2026' },
+  { value: 'dev-diwali', title: <>We write your <span className="tuc-cw">chapter</span></>, note: 'Dev Deepawali in Varanasi, 23 to 25 November 2026' },
 ];
-const EMPTY = { journey: '', name: '', email: '', cc: 'IN', phone: '', travellers: '', from: '', to: '', consent: false };
+const EMPTY = { journey: '', name: '', email: '', cc: 'IN', phone: '', travellers: '', from: '', to: '', message: '', consent: false };
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 /** Today as YYYY-MM-DD in the visitor's own time zone (for the date pickers' minimum). */
@@ -19,6 +19,7 @@ export function todayISO(d = new Date()) {
 }
 const prettyDate = (iso) => (iso ? new Date(`${iso}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 const TIMEOUT_MS = 15000;
+const FAILED = <>That did not go through. Please message us on <a href="https://wa.me/919147746406" target="_blank" rel="noopener">WhatsApp at +91 91477 46406</a> or write to <a href="mailto:hello@unfoundchapter.com">hello@unfoundchapter.com</a>.</>;
 
 function validate(v, today) {
   const e = {};
@@ -64,7 +65,7 @@ export default function ContactForm() {
   }, []);
   useEffect(() => { if (inkRef.current) inkRef.current.sync(); }, [values]);
 
-  // "We write your chapter" (Dev Diwali) switches to the short form; the grid fades in afresh on the switch
+  // "We write your chapter" (Dev Deepawali) switches to the short form; the grid fades in afresh on the switch
   const short = values.journey === 'dev-diwali';
   const wasShort = useRef(short);
   useEffect(() => {
@@ -111,7 +112,8 @@ export default function ContactForm() {
         const body = new FormData(formRef.current);
         body.set('chapter', label);
         body.set('phone', `+${countryOf(values.cc).dial} ${values.phone}`);
-        if (values.journey === 'dev-diwali') { body.delete('from'); body.delete('to'); }
+        if (values.journey === 'dev-diwali') { body.delete('from'); body.delete('to'); body.set('dates', '23 to 25 November 2026'); }
+        if (!values.message.trim()) body.delete('message');
         body.set('_subject', `New enquiry: ${label}`);
         body.set('_template', 'table');
         body.set('_captcha', 'false');
@@ -119,9 +121,9 @@ export default function ContactForm() {
         const res = await fetch(ENQUIRY_ENDPOINT, { method: 'POST', body, headers: { Accept: 'application/json' }, signal: ctrl.signal });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         setValues(EMPTY);
-        setStatus({ kind: 'sent', text: 'Thank you. Your enquiry has been sent, and a planner will write back to you.' });
+        setStatus({ kind: 'sent', text: 'Thank you. A planner will write to you within one working day.' });
       } catch (err) {
-        setStatus({ kind: 'error', text: 'That did not go through. Please check your connection and try again.' });
+        setStatus({ kind: 'error', text: FAILED });
       } finally {
         clearTimeout(timer);
       }
@@ -129,12 +131,13 @@ export default function ContactForm() {
       const text = [
         `Chapter: ${label}`, `Name: ${values.name.trim()}`, `Email: ${values.email.trim()}`, `Phone: +${countryOf(values.cc).dial} ${values.phone}`,
         `Travellers: ${values.travellers}`,
-        ...(values.journey === 'dev-diwali' ? [] : [`Dates: ${values.from ? `${prettyDate(values.from)} to ${prettyDate(values.to) || 'open'}` : 'not decided'}`]),
+        values.journey === 'dev-diwali' ? 'Dates: 23 to 25 November 2026' : `Dates: ${values.from ? `${prettyDate(values.from)} to ${prettyDate(values.to) || 'open'}` : 'not decided'}`,
+        ...(values.message.trim() ? [`Message: ${values.message.trim()}`] : []),
       ].join('\n');
       window.location.href = `mailto:${ENQUIRY_EMAIL}?subject=${encodeURIComponent(`Enquiry: ${label}`)}&body=${encodeURIComponent(text)}`;
       setStatus({ kind: 'sent', text: 'Your email app should open with your enquiry ready to send.' });
     } else {
-      setStatus({ kind: 'error', text: 'Online enquiries are not switched on yet, so this was not sent.' });
+      setStatus({ kind: 'error', text: FAILED });
     }
   }
 
@@ -188,6 +191,10 @@ export default function ContactForm() {
           </div>
           {err('dates', 'err-dates')}
         </fieldset>
+        <div className="tuc-field tuc-fixed"><span>Dates</span><p>23 to 25 November 2026</p></div>
+        <label className="tuc-field tuc-msg"><span>Anything we should know?</span>
+          <textarea name="message" rows={3} placeholder="Optional" value={values.message} onChange={set('message')} />
+        </label>
       </div>
       <label className="tuc-consent">
         <input type="checkbox" name="consent" required checked={values.consent} onChange={set('consent')} aria-invalid={!!errors.consent} aria-describedby={errors.consent ? 'err-consent' : undefined} />

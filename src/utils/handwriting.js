@@ -4,7 +4,7 @@
  * (and the caret); its text is drawn transparent and a mirror "ink" layer on top shows the letters.
  * Returns { sync, destroy }. Call sync() after changing field values from code (e.g. a form reset).
  */
-const FIELDS = 'input[name="name"],input[name="email"],input[name="phone"]';
+const FIELDS = 'input[name="name"],input[name="email"],input[name="phone"],textarea[name="message"]';
 const STAGGER = 38; // ms between letters of a pasted or autofilled run
 
 export function attachHandwriting(form) {

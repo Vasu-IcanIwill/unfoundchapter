@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { HEADER_EVENT } from './useHeaderState.js';
 
 /**
- * Dev Diwali parchment scroll: pins in view and unrolls from the centre little by little as the visitor
+ * Dev Deepawali parchment scroll: pins in view and unrolls from the centre little by little as the visitor
  * scrolls, holds open, then rolls back up. Geometry, easing and timings are the approved ones.
  */
 export default function useScrollUnroll(rootRef) {

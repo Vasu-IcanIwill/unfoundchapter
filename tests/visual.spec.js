@@ -14,7 +14,11 @@ const VIEWPORTS = [[1440, 900], [768, 1024], [390, 844]];
 const PAGES = [['index', '/'], ['dev-diwali', '/dev-diwali.html'], ['contact', '/contact.html'], ['terms', '/terms.html'], ['privacy', '/privacy.html'], ['404', '/404.html']];
 // Approved, intentional content differences (see MIGRATION_REPORT.md): privacy now says fonts are self-hosted
 // and names FormSubmit, the service that emails enquiries to the studio.
-const ALLOWED = { privacy: 0.2 };
+// 26 Oct 2026 brief: contact (talk line, message box), terms and privacy were rewritten in full, so those
+// pages are no longer pixel-compared against the old approved copy; their content is covered by e2e tests.
+// index: the new "Dev Deepawali, limited to 10 guests." line moves the notepad by a sub-pixel on phones, which
+// resamples its illustrations (0.11% at 390px). Text and layout are mirrored in the approved copy.
+const ALLOWED = { privacy: 0.4, terms: 0.4, contact: 0.4, index: 0.002 };
 const LIMIT = 0.001; // 0.1% of pixels
 
 async function capture(browser, base, path, width, height) {
