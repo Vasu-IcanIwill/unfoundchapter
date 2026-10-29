@@ -3,3 +3,7 @@
 export const STUDIO_EMAIL = 'unfoundchapter@gmail.com';
 export const ENQUIRY_ENDPOINT = (import.meta.env.VITE_ENQUIRY_ENDPOINT || `https://formsubmit.co/ajax/${STUDIO_EMAIL}`).trim();
 export const ENQUIRY_EMAIL = (import.meta.env.VITE_ENQUIRY_EMAIL || STUDIO_EMAIL).trim();
+
+// Classic (full-page) FormSubmit address, used when the background send is blocked, e.g. by FormSubmit's
+// Cloudflare check: the visitor's browser passes that check on a normal page, then returns to ?sent=1.
+export const ENQUIRY_PAGE_ENDPOINT = `https://formsubmit.co/${STUDIO_EMAIL}`;

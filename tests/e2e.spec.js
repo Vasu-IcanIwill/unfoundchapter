@@ -265,17 +265,39 @@ test.describe('enquiry form', () => {
     await expect(page.locator('.tuc-fixed')).toBeHidden();
   });
 
-  test('a failed send points to WhatsApp and email', async ({ page }) => {
-    await page.route('https://formsubmit.co/**', (route) => route.fulfill({ status: 500, body: 'no' }));
-    await page.goto('/contact.html?journey=own');
+  test('if the background send is refused, it is sent as a normal page and returns to a thank-you', async ({ page }) => {
+    let pagePost = null;
+    await page.route('https://formsubmit.co/ajax/**', (r) => r.fulfill({ status: 403, body: 'challenge' }));
+    await page.route('https://formsubmit.co/unfoundchapter@gmail.com', (r) => {
+      pagePost = r.request().postData() || '';
+      const next = new URLSearchParams(pagePost).get('_next');
+      return r.fulfill({ status: 302, headers: { Location: next } });
+    });
+    await page.goto('/contact.html?journey=dev-diwali');
     await page.fill('input[name="name"]', 'Asha');
     await page.fill('input[name="email"]', 'asha@example.com');
     await page.fill('input[name="phone"]', '9876543210');
     await page.check('input[name="consent"]');
     await page.getByRole('button', { name: 'Request invite' }).click();
+    await expect(page.locator('.tuc-status')).toHaveText('Thank you. A planner will write to you within one working day.');
+    expect(pagePost).toContain('Asha');
+    expect(pagePost).toContain('dates=23+to+25+November+2026');
+    await expect(page).toHaveURL(/\/contact\.html$/);
+  });
+
+  test('a visitor who is offline is pointed to WhatsApp and email', async ({ page, context }) => {
+    await page.goto('/contact.html?journey=own');
+    await page.fill('input[name="name"]', 'Asha');
+    await page.fill('input[name="email"]', 'asha@example.com');
+    await page.fill('input[name="phone"]', '9876543210');
+    await page.check('input[name="consent"]');
+    await context.setOffline(true);
+    await page.getByRole('button', { name: 'Request invite' }).click();
     await expect(page.locator('.tuc-status a[href^="https://wa.me/919147746406"]')).toBeVisible();
     await expect(page.locator('.tuc-status a[href="mailto:hello@unfoundchapter.com"]')).toBeVisible();
+    await context.setOffline(false);
   });
+
 
   test('enquiries are emailed to the studio mailbox through FormSubmit', async ({ page }) => {
     let sent = null;

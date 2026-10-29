@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ENQUIRY_ENDPOINT, ENQUIRY_EMAIL } from '../utils/env.js';
+import { ENQUIRY_ENDPOINT, ENQUIRY_EMAIL, ENQUIRY_PAGE_ENDPOINT } from '../utils/env.js';
 import { attachHandwriting, alignToRules } from '../utils/handwriting.js';
 import { track } from '../utils/consent.js';
 import { COUNTRIES, countryOf, digitsHint, phoneError, cleanPhone } from '../utils/countries.js';
@@ -20,6 +20,24 @@ export function todayISO(d = new Date()) {
 }
 const prettyDate = (iso) => (iso ? new Date(`${iso}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 const TIMEOUT_MS = 15000;
+const SENT_TEXT = 'Thank you. A planner will write to you within one working day.';
+
+/** Sends the enquiry as an ordinary page submission (the browser leaves for FormSubmit, then returns to ?sent=1). */
+function submitAsPage(body, chapter) {
+  const f = document.createElement('form');
+  f.method = 'POST';
+  f.action = ENQUIRY_PAGE_ENDPOINT;
+  f.acceptCharset = 'UTF-8';
+  f.style.display = 'none';
+  const add = (k, v) => { const i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = v; f.appendChild(i); };
+  for (const [k, v] of body.entries()) if (typeof v === 'string') add(k, v);
+  const back = new URL('/contact.html', window.location.origin);
+  back.searchParams.set('sent', '1');
+  back.searchParams.set('chapter', chapter);
+  add('_next', back.toString());
+  document.body.appendChild(f);
+  f.submit();
+}
 const FAILED = <>That did not go through. Please message us on <a href="https://wa.me/919147746406" target="_blank" rel="noopener">WhatsApp at +91 91477 46406</a> or write to <a href="mailto:hello@unfoundchapter.com">hello@unfoundchapter.com</a>.</>;
 
 function validate(v, today) {
@@ -52,6 +70,16 @@ export default function ContactForm() {
   useEffect(() => { setToday(todayISO()); }, []);
 
   // ?journey=own | dev-diwali | ... preselects the chapter (after hydration, so server and client markup match)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('sent') === '1') {
+      setStatus({ kind: 'sent', text: SENT_TEXT });
+      track('generate_lead', { chapter: params.get('chapter') || '' });
+      window.history.replaceState(null, '', window.location.pathname);
+      requestAnimationFrame(() => { const el = document.querySelector('.tuc-status'); if (el) el.scrollIntoView({ block: 'center' }); });
+    }
+  }, []);
+
   useEffect(() => {
     const q = new URLSearchParams(window.location.search).get('journey');
     if (q && JOURNEY_FROM_QUERY[q]) setValues((v) => ({ ...v, journey: JOURNEY_FROM_QUERY[q] }));
@@ -119,11 +147,23 @@ export default function ContactForm() {
         body.set('_template', 'table');
         body.set('_captcha', 'false');
         body.set('_replyto', values.email.trim());
-        const res = await fetch(ENQUIRY_ENDPOINT, { method: 'POST', body, headers: { Accept: 'application/json' }, signal: ctrl.signal });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        track('generate_lead', { chapter: values.journey });
-        setValues(EMPTY);
-        setStatus({ kind: 'sent', text: 'Thank you. A planner will write to you within one working day.' });
+        let ok = false;
+        try {
+          const res = await fetch(ENQUIRY_ENDPOINT, { method: 'POST', body, headers: { Accept: 'application/json' }, signal: ctrl.signal });
+          const data = res.ok ? await res.json().catch(() => ({})) : {};
+          ok = res.ok && String(data.success) !== 'false';
+        } catch { ok = false; }
+        if (ok) {
+          track('generate_lead', { chapter: values.journey });
+          setValues(EMPTY);
+          setStatus({ kind: 'sent', text: SENT_TEXT });
+        } else if (navigator.onLine === false) {
+          setStatus({ kind: 'error', text: FAILED });
+        } else {
+          // background send was refused (e.g. FormSubmit's Cloudflare check): send it as a normal page instead
+          setStatus({ kind: 'sending', text: 'Sending...' });
+          submitAsPage(body, values.journey);
+        }
       } catch (err) {
         setStatus({ kind: 'error', text: FAILED });
       } finally {
