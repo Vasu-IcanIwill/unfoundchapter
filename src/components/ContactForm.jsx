@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ENQUIRY_ENDPOINT, ENQUIRY_EMAIL } from '../utils/env.js';
 import { attachHandwriting, alignToRules } from '../utils/handwriting.js';
+import { track } from '../utils/consent.js';
 import { COUNTRIES, countryOf, digitsHint, phoneError, cleanPhone } from '../utils/countries.js';
 
 const JOURNEY_FROM_QUERY = { own: 'own', diy: 'own', 'dev-diwali': 'dev-diwali', group: 'dev-diwali' };
@@ -120,6 +121,7 @@ export default function ContactForm() {
         body.set('_replyto', values.email.trim());
         const res = await fetch(ENQUIRY_ENDPOINT, { method: 'POST', body, headers: { Accept: 'application/json' }, signal: ctrl.signal });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        track('generate_lead', { chapter: values.journey });
         setValues(EMPTY);
         setStatus({ kind: 'sent', text: 'Thank you. A planner will write to you within one working day.' });
       } catch (err) {

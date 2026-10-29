@@ -1,5 +1,6 @@
 // Functional, accessibility-basics and delivery checks for the production build (dist/).
 import { test, expect } from '@playwright/test';
+import { CHOSEN } from './consent-state.js';
 
 const PAGES = ['/', '/dev-diwali.html', '/contact.html', '/terms.html', '/privacy.html'];
 const VIEWPORTS = [
@@ -35,7 +36,7 @@ test.describe('every page loads cleanly', () => {
 
 test('no horizontal scrolling on any page at desktop, tablet and phone sizes', async ({ browser }) => {
   for (const vp of VIEWPORTS) {
-    const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
+    const ctx = await browser.newContext({ storageState: CHOSEN, viewport: { width: vp.width, height: vp.height } });
     const page = await ctx.newPage();
     for (const path of [...PAGES, '/404.html']) {
       await page.goto(path);
@@ -308,7 +309,7 @@ test('keyboard: skip link and visible focus', async ({ page }) => {
 });
 
 test('reduced motion: notepad opens immediately and no star orbit', async ({ browser }) => {
-  const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
+  const ctx = await browser.newContext({ storageState: CHOSEN, reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } });
   const page = await ctx.newPage();
   await page.goto('/');
   await expect(page.locator('.tuc-nb')).toHaveClass(/is-open/);
@@ -377,7 +378,7 @@ test('choosing "We write your chapter" switches to the short form', async ({ pag
 
 
 test('phone menu: the = button opens every header link and closes again', async ({ browser }) => {
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  const ctx = await browser.newContext({ storageState: CHOSEN, viewport: { width: 390, height: 844 }, hasTouch: true });
   const page = await ctx.newPage();
   await page.goto('/');
   await expect(page.locator('.tuc-nav-l')).toBeHidden();
@@ -390,4 +391,55 @@ test('phone menu: the = button opens every header link and closes again', async 
   await expect(btn).toHaveAttribute('aria-expanded', 'false');
   await expect(page.locator('#tuc-menu')).toBeHidden();
   await ctx.close();
+});
+
+test.describe('cookie notice and Tag Manager', () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+  const TAGS = /googletagmanager|google-analytics|googleads|doubleclick|facebook/;
+
+  test('nothing reaches Google or Meta until Accept', async ({ page }) => {
+    const hits = [];
+    await page.route(TAGS, (r) => { hits.push(r.request().url()); return r.fulfill({ status: 200, body: '' }); });
+    await page.goto('/dev-diwali.html');
+    await expect(page.locator('.tuc-consent-bar')).toBeVisible();
+    await page.waitForTimeout(800);
+    expect(hits).toHaveLength(0);
+    await page.locator('.tuc-consent-yes').click();
+    await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
+    await expect.poll(() => hits.length).toBe(1);
+    expect(hits[0]).toBe('https://www.googletagmanager.com/gtm.js?id=GTM-M4FVNKG7');
+    await page.reload();
+    await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
+  });
+
+  test('Only essential is remembered and Cookie settings reopens the notice', async ({ page }) => {
+    const hits = [];
+    await page.route(TAGS, (r) => { hits.push(r.request().url()); return r.fulfill({ status: 200, body: '' }); });
+    await page.goto('/');
+    await page.locator('.tuc-consent-no').click();
+    await page.reload();
+    await page.waitForTimeout(800);
+    await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
+    expect(hits).toHaveLength(0);
+    await page.locator('footer a', { hasText: 'Cookie settings' }).click();
+    await expect(page.locator('.tuc-consent-bar')).toBeVisible();
+  });
+
+  test('WhatsApp taps and sent enquiries are counted without personal details', async ({ page }) => {
+    await page.route(TAGS, (r) => r.fulfill({ status: 200, body: '' }));
+    await page.route('https://formsubmit.co/**', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{"success":"true"}' }));
+    await page.route('https://wa.me/**', (r) => r.fulfill({ status: 200, body: '' }));
+    await page.goto('/contact.html?journey=dev-diwali');
+    await page.locator('.tuc-consent-yes').click();
+    await page.fill('input[name="name"]', 'Asha');
+    await page.fill('input[name="email"]', 'asha@example.com');
+    await page.fill('input[name="phone"]', '9876543210');
+    await page.check('input[name="consent"]');
+    await page.getByRole('button', { name: 'Request invite' }).click();
+    await expect(page.locator('.tuc-status')).toHaveText(/Thank you/);
+    const events = await page.evaluate(() => window.dataLayer.filter((e) => e.event === 'generate_lead'));
+    expect(events).toHaveLength(1);
+    expect(events[0].chapter).toBe('dev-diwali');
+    expect(JSON.stringify(events)).not.toMatch(/Asha|example\.com|9876543210/);
+  });
 });

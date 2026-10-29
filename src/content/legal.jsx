@@ -1,5 +1,6 @@
 // Terms and privacy text, as supplied by the business on 26 October 2026.
 export const UPDATED_NOTE = 'Last updated: 26 October 2026';
+export const PRIVACY_NOTE = 'Last updated: 29 October 2026';
 
 const ADDRESS = 'Room-1, 7-H-23, Indira Gandhi Nagar, Sector 7, Jagatpura, Jaipur, Rajasthan 302017';
 
@@ -33,9 +34,12 @@ export const PRIVACY = [
   { id: 'photos', h: 'Your photos and reviews', ps: ['Your privacy is our top priority. We will never post your reviews, your photos or anything else from your journey, anywhere. What you share with us stays with us.'] },
   { id: 'collect', h: 'What we collect', ps: ['Your name, email, phone, travel dates, number of travellers and your message. For bookings, names as on your ID and any dietary or accessibility needs you choose to share.'] },
   { id: 'use', h: 'How we use it', ps: ['Only to reply, plan and arrange your journey, and keep you informed. We do not sell your details.'] },
-  { id: 'share', h: 'Who we share it with', ps: ['Hotels, transport providers and guides involved in your journey; the banking or payment provider when you pay; FormSubmit (formsubmit.co), the form service that delivers your enquiry to us; and WhatsApp if you message us, under its own policy.'] },
+  { id: 'share', h: 'Who we share it with', ps: ['Hotels, transport providers and guides involved in your journey; the banking or payment provider when you pay; FormSubmit (formsubmit.co), the form service that delivers your enquiry to us; WhatsApp if you message us, under its own policy; and, only if you accept cookies on this website, Google and Meta, to count visits and measure our advertising.'] },
   { id: 'retention', h: 'How long we keep it', ps: ['Enquiries that do not become bookings are deleted after 12 months. Booking and invoice records are kept as long as Indian tax and company law require.'] },
   { id: 'rights', h: 'Your choices', ps: [<>You can ask to see, correct or delete your details, or withdraw consent, under the Digital Personal Data Protection Act, 2023. Write to <a href="mailto:hello@unfoundchapter.com">hello@unfoundchapter.com</a> and we will reply within 30 days.</>] },
   { id: 'complaints', h: 'Complaints', ps: [<>Write to <a href="mailto:hello@unfoundchapter.com?subject=Privacy">hello@unfoundchapter.com</a> with “Privacy” in the subject line.</>] },
-  { id: 'website', h: 'This website', ps: ['This website does not use advertising or tracking cookies, and its fonts are served from this website rather than a third party.'] },
+  { id: 'website', h: 'This website and cookies', ps: [
+    <>This website sets no advertising or analytics cookies unless you choose “Accept” in the cookie notice. If you do, Google (Analytics and Ads) and Meta (Facebook and Instagram) set cookies that help us count visits and see which of our ads bring people here. <span style={{ color: '#B3261E' }}>They receive your device and browsing details, and <strong style={{ fontWeight: 700 }}>NOT</strong> your name, email or phone number.</span></>,
+    <>If you choose “Only essential”, none of these are loaded. You can change your choice at any time with <a href="#cookie-settings">Cookie settings</a> at the foot of every page. Our fonts are served from this website rather than a third party.</>,
+  ] },
 ];

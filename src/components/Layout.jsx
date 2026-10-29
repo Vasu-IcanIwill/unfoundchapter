@@ -4,17 +4,21 @@ import { html } from '../content/index.js';
 import useHeaderState from '../hooks/useHeaderState.js';
 import useStarOrbit from '../hooks/useStarOrbit.js';
 import { initMobileMenu } from '../utils/mobileMenu.js';
+import { initLinkTracking } from '../utils/consent.js';
+import ConsentBanner from './ConsentBanner.jsx';
 
 /** Shared page chrome: the matted invitation frame, sticky-header state, star orbit on hover, skip link. */
 export default function Layout({ variant = 'home', children }) {
   useHeaderState();
   useStarOrbit();
   useEffect(() => initMobileMenu(), []);
+  useEffect(() => initLinkTracking(), []);
   return (
     <>
       <a className="tuc-skip" href="#main">Skip to content</a>
       <RawHtml html={variant === 'dev-diwali' ? html.ddFrame : html.frame} />
       {children}
+      <ConsentBanner />
     </>
   );
 }

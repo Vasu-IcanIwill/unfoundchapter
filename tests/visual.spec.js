@@ -3,6 +3,7 @@
 // Brand fonts are blocked in BOTH so the comparison is deterministic offline; the clock is frozen so the
 // live sky and globe match; the two live canvases are masked in full-page captures and compared separately.
 import { test, expect } from '@playwright/test';
+import { CHOSEN } from './consent-state.js';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -22,7 +23,7 @@ const ALLOWED = { privacy: 0.4, terms: 0.4, contact: 0.4, index: 0.002 };
 const LIMIT = 0.001; // 0.1% of pixels
 
 async function capture(browser, base, path, width, height) {
-  const ctx = await browser.newContext({ viewport: { width, height }, timezoneId: 'Asia/Kolkata', locale: 'en-GB' });
+  const ctx = await browser.newContext({ storageState: CHOSEN, viewport: { width, height }, timezoneId: 'Asia/Kolkata', locale: 'en-GB' });
   const page = await ctx.newPage();
   await page.clock.install({ time: FIXED });
   await page.route(/(fonts\.googleapis|fonts\.gstatic|brygada|cinzel|italianno|montserrat)/, (r) => r.abort());
