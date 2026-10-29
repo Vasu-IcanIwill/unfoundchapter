@@ -144,3 +144,7 @@ a:hover{color:#96745A}
 .tuc-nb[data-page="2"] .tuc-nb-spark.s2{animation-delay:.6s}.tuc-nb[data-page="2"] .tuc-nb-spark.s3{animation-delay:1.3s}
 @keyframes tucNbSpark{0%,100%{opacity:0;transform:scale(.2) rotate(0)}20%{opacity:1;transform:scale(1) rotate(45deg)}40%{opacity:0;transform:scale(.3) rotate(90deg)}}
 @media (prefers-reduced-motion: reduce){.tuc-nb-mark-tip::before,.tuc-nb-blip{animation:none}.tuc-nb[data-page="2"] .tuc-nb-spark{animation:none;opacity:1;transform:none}}
+/* red bookmark carrying the number on promise 07 (privacy), same ribbon as the notepad bookmark */
+.tuc-priv-num{position:relative;z-index:0;flex:0 0 auto;align-self:flex-start;box-sizing:border-box;width:30px;margin:-32px -4px 0 -4px;padding:26px 0 22px !important;text-align:center;font-size:15px !important;color:#FBEFEA !important;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}
+.tuc-priv-num::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#86251F 0%,#B5352D 52%,#952B25 100%);clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%)}
+.tuc-priv-num::after{content:"";position:absolute;left:0;right:0;top:0;height:6px;z-index:-1;background:rgba(40,8,6,.35)}

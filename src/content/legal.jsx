@@ -30,6 +30,7 @@ export const TERMS = [
 
 export const PRIVACY = [
   { id: 'who', h: 'Who we are', ps: [`Bitmartian Softech Private Limited, trading as Unfound Chapter, decides how your details are used. Our principal place of business is ${ADDRESS}.`] },
+  { id: 'photos', h: 'Your photos and reviews', ps: ['Your privacy is our top priority. We will never post your reviews, your photos or anything else from your journey, anywhere. What you share with us stays with us.'] },
   { id: 'collect', h: 'What we collect', ps: ['Your name, email, phone, travel dates, number of travellers and your message. For bookings, names as on your ID and any dietary or accessibility needs you choose to share.'] },
   { id: 'use', h: 'How we use it', ps: ['Only to reply, plan and arrange your journey, and keep you informed. We do not sell your details.'] },
   { id: 'share', h: 'Who we share it with', ps: ['Hotels, transport providers and guides involved in your journey; the banking or payment provider when you pay; FormSubmit (formsubmit.co), the form service that delivers your enquiry to us; and WhatsApp if you message us, under its own policy.'] },
