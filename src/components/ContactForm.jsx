@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ENQUIRY_ENDPOINT, ENQUIRY_EMAIL, ENQUIRY_PAGE_ENDPOINT } from '../utils/env.js';
+import { ENQUIRY_ENDPOINT, ENQUIRY_EMAIL } from '../utils/env.js';
 import { attachHandwriting, alignToRules } from '../utils/handwriting.js';
 import { track } from '../utils/consent.js';
 import { COUNTRIES, countryOf, digitsHint, phoneError, cleanPhone } from '../utils/countries.js';
@@ -22,21 +22,20 @@ const prettyDate = (iso) => (iso ? new Date(`${iso}T00:00:00`).toLocaleDateStrin
 const TIMEOUT_MS = 15000;
 const SENT_TEXT = 'Thank you. A planner will write to you within one working day.';
 
-/** Sends the enquiry as an ordinary page submission (the browser leaves for FormSubmit, then returns to ?sent=1). */
-function submitAsPage(body, chapter) {
-  const f = document.createElement('form');
-  f.method = 'POST';
-  f.action = ENQUIRY_PAGE_ENDPOINT;
-  f.acceptCharset = 'UTF-8';
-  f.style.display = 'none';
-  const add = (k, v) => { const i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = v; f.appendChild(i); };
-  for (const [k, v] of body.entries()) if (typeof v === 'string') add(k, v);
-  const back = new URL('/contact.html', window.location.origin);
-  back.searchParams.set('sent', '1');
-  back.searchParams.set('chapter', chapter);
-  add('_next', back.toString());
-  document.body.appendChild(f);
-  f.submit();
+/** The enquiry as plain text, for sending by WhatsApp or email when the online form service is unavailable. */
+function enquiryText(v, label) {
+  const c = countryOf(v.cc);
+  return [
+    'Hello Unfound Chapter, I would like to enquire.',
+    '',
+    `Chapter: ${label}`,
+    `Name: ${v.name.trim()}`,
+    `Email: ${v.email.trim()}`,
+    `Phone: +${c.dial} ${v.phone}`,
+    v.travellers ? `Travellers: ${v.travellers}` : '',
+    v.journey === 'dev-diwali' ? 'Dates: 23 to 25 November 2026' : (v.from ? `Dates: ${prettyDate(v.from)} to ${prettyDate(v.to) || 'open'}` : ''),
+    v.message.trim() ? `Note: ${v.message.trim()}` : '',
+  ].filter((x, k) => x || k === 1).join('\n');
 }
 const FAILED = <>That did not go through. Please message us on <a href="https://wa.me/919147746406" target="_blank" rel="noopener">WhatsApp at +91 91477 46406</a> or write to <a href="mailto:hello@unfoundchapter.com">hello@unfoundchapter.com</a>.</>;
 
@@ -70,16 +69,6 @@ export default function ContactForm() {
   useEffect(() => { setToday(todayISO()); }, []);
 
   // ?journey=own | dev-diwali | ... preselects the chapter (after hydration, so server and client markup match)
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('sent') === '1') {
-      setStatus({ kind: 'sent', text: SENT_TEXT });
-      track('generate_lead', { chapter: params.get('chapter') || '' });
-      window.history.replaceState(null, '', window.location.pathname);
-      requestAnimationFrame(() => { const el = document.querySelector('.tuc-status'); if (el) el.scrollIntoView({ block: 'center' }); });
-    }
-  }, []);
-
   useEffect(() => {
     const q = new URLSearchParams(window.location.search).get('journey');
     if (q && JOURNEY_FROM_QUERY[q]) setValues((v) => ({ ...v, journey: JOURNEY_FROM_QUERY[q] }));
@@ -157,12 +146,10 @@ export default function ContactForm() {
           track('generate_lead', { chapter: values.journey });
           setValues(EMPTY);
           setStatus({ kind: 'sent', text: SENT_TEXT });
-        } else if (navigator.onLine === false) {
-          setStatus({ kind: 'error', text: FAILED });
         } else {
-          // background send was refused (e.g. FormSubmit's Cloudflare check): send it as a normal page instead
-          setStatus({ kind: 'sending', text: 'Sending...' });
-          submitAsPage(body, values.journey);
+          // the online form service is unavailable: keep the enquiry and let the visitor send it themselves
+          track('enquiry_fallback', { chapter: values.journey });
+          setStatus({ kind: 'fallback', text: enquiryText(values, label) });
         }
       } catch (err) {
         setStatus({ kind: 'error', text: FAILED });
@@ -245,7 +232,17 @@ export default function ContactForm() {
       {err('consent', 'err-consent')}
       <div className="tuc-actions">
         <button type="submit" className="tuc-send" disabled={status.kind === 'sending'}>Request invite</button>
-        <p className="tuc-status" role="status" aria-live="polite">{status.text}</p>
+        {status.kind === 'fallback' ? (
+          <div className="tuc-status tuc-fallback" role="status" aria-live="polite">
+            <p>Our online form is not responding just now. Your details are ready to send in one tap:</p>
+            <div className="tuc-fallback-btns">
+              <a className="tuc-send" href={`https://wa.me/919147746406?text=${encodeURIComponent(status.text)}`} target="_blank" rel="noopener">Send on WhatsApp</a>
+              <a className="tuc-send tuc-send-alt" href={`mailto:hello@unfoundchapter.com?subject=${encodeURIComponent('Enquiry from the website')}&body=${encodeURIComponent(status.text)}`}>Send by email</a>
+            </div>
+          </div>
+        ) : (
+          <p className="tuc-status" role="status" aria-live="polite">{status.text}</p>
+        )}
       </div>
     </form>
   );

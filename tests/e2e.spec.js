@@ -265,27 +265,27 @@ test.describe('enquiry form', () => {
     await expect(page.locator('.tuc-fixed')).toBeHidden();
   });
 
-  test('if the background send is refused, it is sent as a normal page and returns to a thank-you', async ({ page }) => {
-    let pagePost = null;
-    await page.route('https://formsubmit.co/ajax/**', (r) => r.fulfill({ status: 403, body: 'challenge' }));
-    await page.route('https://formsubmit.co/unfoundchapter@gmail.com', (r) => {
-      pagePost = r.request().postData() || '';
-      const next = new URLSearchParams(pagePost).get('_next');
-      return r.fulfill({ status: 302, headers: { Location: next } });
-    });
+  test('if the form service is down, the enquiry is ready to send on WhatsApp or by email', async ({ page }) => {
+    await page.route('https://formsubmit.co/**', (r) => r.fulfill({ status: 521, body: 'Web server is down' }));
     await page.goto('/contact.html?journey=dev-diwali');
     await page.fill('input[name="name"]', 'Asha');
     await page.fill('input[name="email"]', 'asha@example.com');
     await page.fill('input[name="phone"]', '9876543210');
     await page.check('input[name="consent"]');
     await page.getByRole('button', { name: 'Request invite' }).click();
-    await expect(page.locator('.tuc-status')).toHaveText('Thank you. A planner will write to you within one working day.');
-    expect(pagePost).toContain('Asha');
-    expect(pagePost).toContain('dates=23+to+25+November+2026');
-    await expect(page).toHaveURL(/\/contact\.html$/);
+    const wa = page.locator('.tuc-fallback a', { hasText: 'Send on WhatsApp' });
+    await expect(wa).toBeVisible();
+    const href = decodeURIComponent(await wa.getAttribute('href'));
+    expect(href).toContain('https://wa.me/919147746406?text=');
+    expect(href).toContain('Name: Asha');
+    expect(href).toContain('Dates: 23 to 25 November 2026');
+    const mail = decodeURIComponent(await page.locator('.tuc-fallback a', { hasText: 'Send by email' }).getAttribute('href'));
+    expect(mail).toContain('mailto:hello@unfoundchapter.com?subject=Enquiry from the website');
+    expect(mail).toContain('Phone: +91 9876543210');
+    await expect(page).toHaveURL(/contact\.html/);
   });
 
-  test('a visitor who is offline is pointed to WhatsApp and email', async ({ page, context }) => {
+  test('a visitor who is offline gets the same WhatsApp and email hand-off', async ({ page, context }) => {
     await page.goto('/contact.html?journey=own');
     await page.fill('input[name="name"]', 'Asha');
     await page.fill('input[name="email"]', 'asha@example.com');
@@ -294,7 +294,7 @@ test.describe('enquiry form', () => {
     await context.setOffline(true);
     await page.getByRole('button', { name: 'Request invite' }).click();
     await expect(page.locator('.tuc-status a[href^="https://wa.me/919147746406"]')).toBeVisible();
-    await expect(page.locator('.tuc-status a[href="mailto:hello@unfoundchapter.com"]')).toBeVisible();
+    await expect(page.locator('.tuc-status a[href^="mailto:hello@unfoundchapter.com"]')).toBeVisible();
     await context.setOffline(false);
   });
 

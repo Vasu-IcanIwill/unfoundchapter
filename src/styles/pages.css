@@ -128,3 +128,10 @@ a:hover{color:#96745A}
 .tuc-legal p{line-height:var(--rule);margin:0}
 .tuc-legal section+section{margin-top:var(--rule)}
 @media (max-width:700px){.tuc-legal{padding-top:calc(var(--rule) + var(--ink-drop, 10px))}}
+/* when the online form service is down: hand the ready-written enquiry to WhatsApp or email */
+.tuc-fallback{flex:1 1 100%;margin:0}
+.tuc-fallback p{margin:0 0 14px;color:#1B2B4A}
+.tuc-fallback-btns{display:flex;flex-wrap:wrap;gap:12px}
+.tuc-fallback-btns .tuc-send{text-decoration:none;width:auto}
+.tuc-send-alt{background:transparent !important}
+@media (max-width:700px){.tuc-fallback-btns .tuc-send{flex:1 1 100%}}
