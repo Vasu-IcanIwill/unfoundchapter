@@ -1,6 +1,7 @@
-// Cookie consent and ad/analytics tracking.
-// Google Tag Manager (which carries Google Analytics, Google Ads and the Meta Pixel) is loaded ONLY after the
-// visitor chooses "Accept". With "Only essential", or before any choice, nothing is sent to Google or Meta.
+// Cookie consent and ad/analytics tracking, using Google Consent Mode (advanced).
+// Google Tag Manager loads on every page from the snippet in each page's <head>, with all consent set to
+// "denied" until the visitor chooses. "Accept" grants it; "Only essential" keeps it denied. While denied,
+// Google tags send only cookie-free pings, and Meta tags must be set in Tag Manager to require ad_storage.
 export const GTM_ID = 'GTM-M4FVNKG7';
 const KEY = 'tuc-consent'; // 'all' | 'essential'
 export const OPEN_EVENT = 'tuc:consent-open';
@@ -12,26 +13,12 @@ export function readChoice() {
 function dl() { window.dataLayer = window.dataLayer || []; return window.dataLayer; }
 function gtag() { dl().push(arguments); } // eslint-disable-line prefer-rest-params
 
-let loaded = false;
-export function loadTags() {
-  if (loaded || typeof document === 'undefined') return;
-  loaded = true;
-  gtag('consent', 'default', { ad_storage: 'granted', analytics_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
-  dl().push({ 'gtm.start': Date.now(), event: 'gtm.js' });
-  const s = document.createElement('script');
-  s.async = true;
-  s.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`;
-  document.head.appendChild(s);
-}
+const ALL = (v) => ({ ad_storage: v, analytics_storage: v, ad_user_data: v, ad_personalization: v });
 
 export function saveChoice(choice) {
   try { window.localStorage.setItem(KEY, choice); } catch { /* private mode: choice lasts for this visit */ }
-  if (choice === 'all') loadTags();
-  else if (loaded) {
-    // switching from Accept to Only essential: stop new cookies now, and reload so no tags stay running
-    gtag('consent', 'update', { ad_storage: 'denied', analytics_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });
-    window.location.reload();
-  }
+  gtag('consent', 'update', ALL(choice === 'all' ? 'granted' : 'denied'));
+  dl().push({ event: choice === 'all' ? 'consent_granted' : 'consent_denied' });
 }
 
 /** Queue an event for Tag Manager. Never include names, emails or phone numbers. */

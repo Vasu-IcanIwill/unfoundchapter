@@ -40,6 +40,7 @@ export const PRIVACY = [
   { id: 'complaints', h: 'Complaints', ps: [<>Write to <a href="mailto:hello@unfoundchapter.com?subject=Privacy">hello@unfoundchapter.com</a> with “Privacy” in the subject line.</>] },
   { id: 'website', h: 'This website and cookies', ps: [
     <>This website sets no advertising or analytics cookies unless you choose “Accept” in the cookie notice. If you do, Google (Analytics and Ads) and Meta (Facebook and Instagram) set cookies that help us count visits and see which of our ads bring people here. <span style={{ color: '#B3261E' }}>They receive your device and browsing details, and <strong style={{ fontWeight: 700 }}>NOT</strong> your name, email or phone number.</span></>,
-    <>If you choose “Only essential”, none of these are loaded. You can change your choice at any time with <a href="#cookie-settings">Cookie settings</a> at the foot of every page. Our fonts are served from this website rather than a third party.</>,
+    <>If you choose “Only essential”, no tracking cookies are set and Meta receives nothing. Google may still receive simple signals without cookies, such as that a page was viewed or an enquiry was sent, which Google uses to estimate advertising results in total. These carry no cookie or advertising ID, so they are not used to recognise you.</>,
+    <>You can change your choice at any time with <a href="#cookie-settings">Cookie settings</a> at the foot of every page. Our fonts are served from this website rather than a third party.</>,
   ] },
 ];

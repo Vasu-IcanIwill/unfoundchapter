@@ -24,6 +24,7 @@ test.describe('every page loads cleanly', () => {
       expect(res.status()).toBe(200);
       const html = await res.text();
       expect(html).toContain('<main id="main"');            // content is in the HTML before any JS runs
+      await page.route(/googletagmanager\.com/, (r) => r.fulfill({ status: 200, contentType: 'text/javascript', body: '' })); // no network to Google in tests
       const errors = watchErrors(page);
       await page.goto(path);
       await page.waitForLoadState('networkidle');
@@ -397,19 +398,22 @@ test.describe('cookie notice and Tag Manager', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
   const TAGS = /googletagmanager|google-analytics|googleads|doubleclick|facebook/;
 
-  test('nothing reaches Google or Meta until Accept', async ({ page }) => {
+  test('Tag Manager starts with consent denied; Accept grants it; Meta never loads from the site', async ({ page }) => {
     const hits = [];
     await page.route(TAGS, (r) => { hits.push(r.request().url()); return r.fulfill({ status: 200, body: '' }); });
     await page.goto('/dev-diwali.html');
     await expect(page.locator('.tuc-consent-bar')).toBeVisible();
-    await page.waitForTimeout(800);
-    expect(hits).toHaveLength(0);
-    await page.locator('.tuc-consent-yes').click();
-    await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
     await expect.poll(() => hits.length).toBe(1);
     expect(hits[0]).toBe('https://www.googletagmanager.com/gtm.js?id=GTM-M4FVNKG7');
+    const consent = () => page.evaluate(() => window.dataLayer.filter((e) => e && e[0] === 'consent').map((e) => [e[1], e[2].ad_storage, e[2].analytics_storage]));
+    expect(await consent()).toEqual([['default', 'denied', 'denied']]);
+    await page.locator('.tuc-consent-yes').click();
+    await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
+    expect(await consent()).toEqual([['default', 'denied', 'denied'], ['update', 'granted', 'granted']]);
     await page.reload();
     await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
+    expect(await consent()).toEqual([['default', 'granted', 'granted']]);
+    expect(hits.filter((u) => /facebook/.test(u))).toHaveLength(0);
   });
 
   test('Only essential is remembered and Cookie settings reopens the notice', async ({ page }) => {
@@ -420,7 +424,9 @@ test.describe('cookie notice and Tag Manager', () => {
     await page.reload();
     await page.waitForTimeout(800);
     await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
-    expect(hits).toHaveLength(0);
+    const def = await page.evaluate(() => window.dataLayer.find((e) => e && e[0] === 'consent' && e[1] === 'default')[2].ad_storage);
+    expect(def).toBe('denied');
+    expect(hits.filter((u) => /facebook/.test(u))).toHaveLength(0);
     await page.locator('footer a', { hasText: 'Cookie settings' }).click();
     await expect(page.locator('.tuc-consent-bar')).toBeVisible();
   });
