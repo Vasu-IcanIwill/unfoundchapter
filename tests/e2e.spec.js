@@ -85,16 +85,17 @@ test('navigation targets are the agreed pages', async ({ page }) => {
   await expect(page).toHaveURL(/\/dev-diwali\.html$/);
 });
 
-test('the brochure button stays but nothing downloads yet', async ({ page, request }) => {
+test('the itinerary button downloads the brochure PDF', async ({ page, request }) => {
   await page.goto('/dev-diwali.html');
-  const btn = page.locator('a.tuc-dl');
-  await expect(btn).toHaveCount(1);
-  await expect(btn).not.toHaveAttribute('href', /.*/);
-  await expect(btn).not.toHaveAttribute('download', /.*/);
-  await expect(page.locator('#tuc-dl-soon')).toHaveText('Coming soon');
-  await expect(page.locator('a[href$=".pdf"]')).toHaveCount(0);
-  expect((await request.get('/docs/The-Unfound-Chapter-Dev-Diwali-Itinerary.pdf')).status()).toBe(404);
+  const dl = page.locator('a.tuc-dl');
+  await expect(dl).toHaveAttribute('href', '/docs/The-Unfound-Chapter-Dev-Deepawali-Itinerary.pdf');
+  await expect(dl).toHaveAttribute('download', 'The-Unfound-Chapter-Dev-Deepawali-Itinerary.pdf');
+  await expect(page.locator('#tuc-dl-soon')).toHaveText('13 pages · PDF · 7.6 MB');
+  const res = await request.get('/docs/The-Unfound-Chapter-Dev-Deepawali-Itinerary.pdf');
+  expect(res.status()).toBe(200);
+  expect(res.headers()['content-type']).toContain('pdf');
 });
+
 
 test('unknown pages return the 404 page with status 404', async ({ request }) => {
   const r = await request.get('/no-such-chapter.html');
@@ -265,6 +266,27 @@ test.describe('enquiry form', () => {
     await expect(page.locator('.tuc-fixed')).toBeHidden();
   });
 
+  test('a sent enquiry goes to our own sender first and opens the thank-you envelope', async ({ page }) => {
+    let sent = null;
+    await page.route('**/api/enquiry', async (route) => { sent = route.request().postDataJSON(); await route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true,"confirmed":true}' }); });
+    await page.goto('/contact.html?journey=dev-diwali');
+    await page.fill('input[name="name"]', 'Asha Sharma');
+    await page.fill('input[name="email"]', 'asha@example.com');
+    await page.fill('input[name="phone"]', '9876543210');
+    await page.fill('textarea[name="message"]', 'Vegetarian');
+    await page.check('input[name="consent"]');
+    await page.getByRole('button', { name: 'Request invite' }).click();
+    const env = page.getByRole('dialog', { name: 'Thank you' });
+    await expect(env).toBeVisible();
+    await expect(env.locator('.tuc-ty-word')).toHaveText('Thank you');
+    expect(sent).toMatchObject({ name: 'Asha Sharma', email: 'asha@example.com', phone: '+91 9876543210', dates: '23 to 25 November 2026', message: 'Vegetarian', chapter: 'We write your chapter: Dev Deepawali' });
+    expect(sent.consent).toBeUndefined();
+    expect(sent.company).toBeUndefined();
+    await env.getByRole('button', { name: 'Close' }).click();
+    await expect(env).toHaveCount(0);
+    await expect(page.locator('.tuc-status')).toHaveText('Thank you. A planner will write to you within one working day.');
+  });
+
   test('if the form service is down, the enquiry is ready to send on WhatsApp or by email', async ({ page }) => {
     await page.route('https://formsubmit.co/**', (r) => r.fulfill({ status: 521, body: 'Web server is down' }));
     await page.goto('/contact.html?journey=dev-diwali');
@@ -416,58 +438,93 @@ test('phone menu: the = button opens every header link and closes again', async 
   await ctx.close();
 });
 
-test.describe('cookie notice and Tag Manager', () => {
+test.describe('cookie notice, Google Analytics and Tag Manager', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
   const TAGS = /googletagmanager|google-analytics|googleads|doubleclick|facebook/;
+  const GA = 'https://www.googletagmanager.com/gtag/js?id=G-MT47TTPL1C';
+  const GTM = 'https://www.googletagmanager.com/gtm.js?id=GTM-M4FVNKG7';
+  const consents = (page) => page.evaluate(() => window.dataLayer.filter((e) => e && e[0] === 'consent').map((e) => [e[1], e[2].analytics_storage, e[2].ad_storage]));
+  const button = (page, name) => page.locator('.tuc-consent-bar').getByRole('button', { name, exact: true });
 
-  test('Tag Manager starts with consent denied; Accept grants it; Meta never loads from the site', async ({ page }) => {
+  test('before a choice: everything denied, Google Analytics not loaded', async ({ page }) => {
     const hits = [];
     await page.route(TAGS, (r) => { hits.push(r.request().url()); return r.fulfill({ status: 200, body: '' }); });
     await page.goto('/dev-diwali.html');
     await expect(page.locator('.tuc-consent-bar')).toBeVisible();
-    await expect.poll(() => hits.length).toBe(1);
-    expect(hits[0]).toBe('https://www.googletagmanager.com/gtm.js?id=GTM-M4FVNKG7');
-    const consent = () => page.evaluate(() => window.dataLayer.filter((e) => e && e[0] === 'consent').map((e) => [e[1], e[2].ad_storage, e[2].analytics_storage]));
-    expect(await consent()).toEqual([['default', 'denied', 'denied']]);
-    await page.locator('.tuc-consent-yes').click();
-    await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
-    expect(await consent()).toEqual([['default', 'denied', 'denied'], ['update', 'granted', 'granted']]);
-    await page.reload();
-    await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
-    expect(await consent()).toEqual([['default', 'granted', 'granted']]);
-    expect(hits.filter((u) => /facebook/.test(u))).toHaveLength(0);
+    await page.waitForTimeout(600);
+    expect(hits).toEqual([GTM]);
+    expect(await consents(page)).toEqual([['default', 'denied', 'denied']]);
   });
 
-  test('Only essential is remembered and Cookie settings reopens the notice', async ({ page }) => {
+  test('Accept all loads Google Analytics and grants both; remembered on return', async ({ page }) => {
     const hits = [];
     await page.route(TAGS, (r) => { hits.push(r.request().url()); return r.fulfill({ status: 200, body: '' }); });
     await page.goto('/');
-    await page.locator('.tuc-consent-no').click();
+    await button(page, 'Accept all').click();
+    await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
+    await expect.poll(() => hits.includes(GA)).toBe(true);
+    expect((await consents(page)).at(-1)).toEqual(['update', 'granted', 'granted']);
+    const cfg = await page.evaluate(() => window.dataLayer.find((e) => e && e[0] === 'config'));
+    expect(cfg[1]).toBe('G-MT47TTPL1C');
+    expect(cfg[2]).toEqual({ allow_google_signals: false, allow_ad_personalization_signals: false });
+    hits.length = 0;
+    await page.reload();
+    await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
+    expect((await consents(page))[0]).toEqual(['default', 'granted', 'granted']);
+    await expect.poll(() => hits.includes(GA)).toBe(true);
+  });
+
+  test('Choose: Analytics only loads Google Analytics but keeps advertising denied', async ({ page }) => {
+    const hits = [];
+    await page.route(TAGS, (r) => { hits.push(r.request().url()); return r.fulfill({ status: 200, body: '' }); });
+    await page.goto('/');
+    await button(page, 'Choose').click();
+    await page.locator('.tuc-consent-bar input[name="analytics"]').check();
+    await button(page, 'Save my choices').click();
+    await expect.poll(() => hits.includes(GA)).toBe(true);
+    expect((await consents(page)).at(-1)).toEqual(['update', 'granted', 'denied']);
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('tuc-consent-v2')));
+    expect(saved).toMatchObject({ analytics: true, ads: false, lang: 'en', version: '2026-10-30' });
+    expect(saved.at).toMatch(/^\d{4}-\d\d-\d\dT/);
+  });
+
+  test('Only essential: no Google Analytics, nothing from Meta, remembered; Cookie settings reopens', async ({ page }) => {
+    const hits = [];
+    await page.route(TAGS, (r) => { hits.push(r.request().url()); return r.fulfill({ status: 200, body: '' }); });
+    await page.goto('/');
+    await button(page, 'Only essential').click();
     await page.reload();
     await page.waitForTimeout(800);
     await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
-    const def = await page.evaluate(() => window.dataLayer.find((e) => e && e[0] === 'consent' && e[1] === 'default')[2].ad_storage);
-    expect(def).toBe('denied');
-    expect(hits.filter((u) => /facebook/.test(u))).toHaveLength(0);
+    expect(hits.filter((u) => u === GA || /facebook/.test(u))).toHaveLength(0);
+    expect((await consents(page))[0]).toEqual(['default', 'denied', 'denied']);
     await page.locator('footer a', { hasText: 'Cookie settings' }).click();
-    await expect(page.locator('.tuc-consent-bar')).toBeVisible();
+    await expect(page.locator('.tuc-consent-bar input[name="analytics"]')).toBeVisible();
   });
 
-  test('WhatsApp taps and sent enquiries are counted without personal details', async ({ page }) => {
+  test('the notice opens in English and is offered in Hindi', async ({ page }) => {
+    await page.route(TAGS, (r) => r.fulfill({ status: 200, body: '' }));
+    await page.goto('/');
+    await expect(page.locator('.tuc-consent-title')).toHaveText('Your privacy, kept');
+    await page.locator('.tuc-consent-tabs button[lang="hi"]').click();
+    await expect(page.locator('.tuc-consent-title')).toHaveText('आपकी निजता, सुरक्षित');
+    await expect(button(page, 'केवल आवश्यक')).toBeVisible();
+  });
+
+  test('sent enquiries are counted without personal details', async ({ page }) => {
     await page.route(TAGS, (r) => r.fulfill({ status: 200, body: '' }));
     await page.route('https://formsubmit.co/**', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{"success":"true"}' }));
-    await page.route('https://wa.me/**', (r) => r.fulfill({ status: 200, body: '' }));
     await page.goto('/contact.html?journey=dev-diwali');
-    await page.locator('.tuc-consent-yes').click();
+    await button(page, 'Accept all').click();
     await page.fill('input[name="name"]', 'Asha');
     await page.fill('input[name="email"]', 'asha@example.com');
     await page.fill('input[name="phone"]', '9876543210');
     await page.check('input[name="consent"]');
     await page.getByRole('button', { name: 'Request invite' }).click();
     await expect(page.locator('.tuc-status')).toHaveText(/Thank you/);
-    const events = await page.evaluate(() => window.dataLayer.filter((e) => e.event === 'generate_lead'));
-    expect(events).toHaveLength(1);
-    expect(events[0].chapter).toBe('dev-diwali');
-    expect(JSON.stringify(events)).not.toMatch(/Asha|example\.com|9876543210/);
+    const sent = await page.evaluate(() => window.dataLayer.filter((e) => (e && e.event === 'generate_lead') || (e && e[0] === 'event' && e[1] === 'generate_lead')));
+    expect(sent.length).toBe(2);
+    expect(JSON.stringify(sent)).not.toMatch(/Asha|example\.com|9876543210/);
   });
 });
+

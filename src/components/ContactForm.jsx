@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ENQUIRY_ENDPOINT, ENQUIRY_EMAIL, WEB3FORMS_KEY } from '../utils/env.js';
 import { attachHandwriting, alignToRules } from '../utils/handwriting.js';
 import { track } from '../utils/consent.js';
+import ThankYouEnvelope from './ThankYouEnvelope.jsx';
 import { COUNTRIES, countryOf, digitsHint, phoneError, cleanPhone } from '../utils/countries.js';
 
 const JOURNEY_FROM_QUERY = { own: 'own', diy: 'own', 'dev-diwali': 'dev-diwali', group: 'dev-diwali' };
@@ -21,6 +22,31 @@ export function todayISO(d = new Date()) {
 const prettyDate = (iso) => (iso ? new Date(`${iso}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 const TIMEOUT_MS = 15000;
 const SENT_TEXT = 'Thank you. A planner will write to you within one working day.';
+
+/** Tries each way of sending, in order: our own /api/enquiry (with the guest's confirmation email), Web3Forms
+ *  if a key is set, then FormSubmit. Returns true as soon as one accepts the enquiry. */
+async function sendEnquiry(fields, formData, label, replyTo, signal) {
+  const attempts = [
+    () => fetch('/api/enquiry', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(fields), signal }),
+    WEB3FORMS_KEY ? () => fetch('https://api.web3forms.com/submit', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject: `New enquiry: ${label}`, from_name: 'Unfound Chapter website', replyto: replyTo, botcheck: '', ...fields }), signal,
+    }) : null,
+    () => fetch(ENQUIRY_ENDPOINT, { method: 'POST', body: formData, headers: { Accept: 'application/json' }, signal }),
+  ].filter(Boolean);
+  for (const attempt of attempts) {
+    try {
+      const res = await attempt();
+      if (!res.ok) continue;
+      const data = await res.json().catch(() => ({}));
+      if (String(data.success) === 'false' || data.ok === false) continue;
+      return true;
+    } catch (e) {
+      if (signal.aborted) return false;
+    }
+  }
+  return false;
+}
 
 /** The enquiry as plain text, for sending by WhatsApp or email when the online form service is unavailable. */
 function enquiryText(v, label) {
@@ -63,6 +89,7 @@ export default function ContactForm() {
   const [values, setValues] = useState(EMPTY);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState({ kind: 'idle', text: '' });
+  const [thanks, setThanks] = useState(false);
   const formRef = useRef(null);
   // set after hydration so the prerendered page never carries a stale build date
   const [today, setToday] = useState('');
@@ -136,27 +163,14 @@ export default function ContactForm() {
         body.set('_template', 'table');
         body.set('_captcha', 'false');
         body.set('_replyto', values.email.trim());
-        let ok = false;
-        try {
-          let res;
-          if (WEB3FORMS_KEY) {
-            const fields = Object.fromEntries([...body.entries()].filter(([k, v]) => typeof v === 'string' && !k.startsWith('_') && k !== 'consent'));
-            res = await fetch('https://api.web3forms.com/submit', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-              body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject: `New enquiry: ${label}`, from_name: 'Unfound Chapter website', replyto: values.email.trim(), botcheck: '', ...fields }),
-              signal: ctrl.signal,
-            });
-          } else {
-            res = await fetch(ENQUIRY_ENDPOINT, { method: 'POST', body, headers: { Accept: 'application/json' }, signal: ctrl.signal });
-          }
-          const data = res.ok ? await res.json().catch(() => ({})) : {};
-          ok = res.ok && String(data.success) !== 'false';
-        } catch { ok = false; }
+        const fields = Object.fromEntries([...body.entries()].filter(([k, v]) => typeof v === 'string' && !k.startsWith('_') && k !== 'consent'));
+        if (!fields.company) { delete fields.company; body.delete('company'); }
+        const ok = await sendEnquiry(fields, body, label, values.email.trim(), ctrl.signal);
         if (ok) {
           track('generate_lead', { chapter: values.journey });
           setValues(EMPTY);
           setStatus({ kind: 'sent', text: SENT_TEXT });
+          setThanks(true);
         } else {
           // the online form service is unavailable: keep the enquiry and let the visitor send it themselves
           track('enquiry_fallback', { chapter: values.journey });
@@ -185,6 +199,7 @@ export default function ContactForm() {
   const err = (key, id) => (errors[key] ? <p className="tuc-err" id={id}>{errors[key]}</p> : null);
 
   return (
+    <>
     <form id="tuc-enquiry" ref={formRef} className="tuc-sheet" data-journey={values.journey || undefined} noValidate onSubmit={onSubmit}>
       <fieldset className="tuc-field tuc-choice" aria-describedby={errors.journey ? 'err-journey' : undefined}>
         <legend>Which <span className="tuc-cw tuc-cw-sm">chapter</span></legend>
@@ -236,6 +251,7 @@ export default function ContactForm() {
           <textarea name="message" rows={3} placeholder="Optional" value={values.message} onChange={set('message')} />
         </label>
       </div>
+      <div className="tuc-hp" aria-hidden="true"><label>Company<input name="company" tabIndex={-1} autoComplete="off" defaultValue="" /></label></div>
       <label className="tuc-consent">
         <input type="checkbox" name="consent" required checked={values.consent} onChange={set('consent')} aria-invalid={!!errors.consent} aria-describedby={errors.consent ? 'err-consent' : undefined} />
         <span>I agree that Unfound Chapter may use these details to reply to my enquiry, as described in the <a href="/privacy.html">privacy policy</a>.</span>
@@ -256,5 +272,7 @@ export default function ContactForm() {
         )}
       </div>
     </form>
+    {thanks ? <ThankYouEnvelope onClose={() => setThanks(false)} /> : null}
+    </>
   );
 }

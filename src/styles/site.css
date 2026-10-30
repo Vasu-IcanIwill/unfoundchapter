@@ -108,3 +108,34 @@ html.tuc-menu-lock,html.tuc-menu-lock body{overflow:hidden}
 @keyframes tucConsentIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @media (max-width:700px){.tuc-consent-bar{left:12px;right:12px;bottom:12px;width:auto;padding:18px 18px 16px}.tuc-consent-btns button{flex:1 1 0;padding:0 10px;letter-spacing:.22em}}
 @media (prefers-reduced-motion:reduce){.tuc-consent-bar{animation:none}}
+/* consent notice: per-purpose choices, language switch; Accept all and Only essential carry equal weight */
+.tuc-consent-bar{max-height:calc(100vh - 64px);overflow-y:auto;width:min(480px,calc(100vw - 64px))}
+.tuc-consent-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.tuc-consent-lang{cursor:pointer;background:none;border:0;padding:4px 0;font:400 13px 'Montserrat','Montserrat Fallback',system-ui,sans-serif;color:#96745A;text-decoration:underline;text-underline-offset:3px}
+.tuc-consent-purposes{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.tuc-consent-purpose{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:1px solid rgba(184,155,101,.45);border-radius:4px;background:rgba(255,255,255,.5);cursor:pointer}
+.tuc-consent-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tuc-consent-name{font:500 11px 'Montserrat','Montserrat Fallback',system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase;color:#1B2B4A}
+.tuc-consent-what{font-size:12px;line-height:1.65;color:#454B50}
+.tuc-consent-purpose input[role="switch"]{appearance:none;-webkit-appearance:none;flex:0 0 auto;width:40px;height:22px;margin:0;border-radius:11px;background:rgba(27,43,74,.22);position:relative;cursor:pointer;transition:background .2s}
+.tuc-consent-purpose input[role="switch"]::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#FCFAF4;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .2s}
+.tuc-consent-purpose input[role="switch"]:checked{background:#1B2B4A}
+.tuc-consent-purpose input[role="switch"]:checked::after{transform:translateX(18px)}
+.tuc-consent-purpose input[role="switch"]:focus-visible{outline:2px solid #B89B65;outline-offset:2px}
+.tuc-consent-more{margin:12px 0 0;font-size:12px}
+.tuc-consent-more a{color:#96745A;text-decoration:underline;text-underline-offset:3px}
+.tuc-consent-btns .tuc-consent-no:not(.tuc-consent-choose):not(.tuc-consent-save){background:#1B2B4A;color:#F7F4EE;border-color:#1B2B4A}
+.tuc-consent-btns .tuc-consent-save{background:#B89B65;color:#1B2B4A;border-color:#B89B65}
+@media (max-width:700px){.tuc-consent-bar{max-height:calc(100vh - 24px)}.tuc-consent-btns button{flex:1 1 calc(50% - 10px)}}
+/* Devanagari must not be letter-spaced or upper-cased: it breaks the joined letters */
+.tuc-consent-bar[lang="hi"] .tuc-consent-btns button,.tuc-consent-bar[lang="hi"] .tuc-consent-name{letter-spacing:0;text-transform:none;font-size:14px;font-family:'Montserrat','Montserrat Fallback',system-ui,sans-serif}
+.tuc-consent-bar[lang="hi"] .tuc-consent-name{font-size:15px;font-weight:600}
+/* language tabs: top right corner of the notice */
+.tuc-consent-tabs{position:absolute;top:16px;right:16px;display:flex;border:1px solid rgba(184,155,101,.6);border-radius:999px;overflow:hidden}
+.tuc-consent-tabs button{cursor:pointer;min-height:30px;padding:0 12px;border:0;background:transparent;color:#6E5440;font:500 11px 'Montserrat','Montserrat Fallback',system-ui,sans-serif;letter-spacing:.06em}
+.tuc-consent-tabs button+button{border-left:1px solid rgba(184,155,101,.6)}
+.tuc-consent-tabs button.is-on{background:#1B2B4A;color:#F7F4EE}
+.tuc-consent-tabs button:focus-visible{outline:2px solid #B89B65;outline-offset:-2px}
+.tuc-consent-tabs button[lang="hi"]{letter-spacing:0;font-size:12px}
+.tuc-consent-bar .tuc-consent-title{padding-right:150px}
+@media (max-width:700px){.tuc-consent-tabs{top:12px;right:12px}.tuc-consent-bar .tuc-consent-title{padding-right:0;margin-top:36px}}

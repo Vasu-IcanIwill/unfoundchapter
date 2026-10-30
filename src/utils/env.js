@@ -9,3 +9,6 @@ export const ENQUIRY_EMAIL = (import.meta.env.VITE_ENQUIRY_EMAIL || STUDIO_EMAIL
 // public (it only lets the site send to the inbox it was issued for), so it can live in the client bundle.
 // While it is empty, enquiries go through FormSubmit as before.
 export const WEB3FORMS_KEY = (import.meta.env.VITE_WEB3FORMS_KEY || '').trim();
+
+// Google Analytics 4 measurement ID (not a secret). Loaded only after the visitor allows Analytics.
+export const GA_ID = (import.meta.env.VITE_GA_ID || 'G-MT47TTPL1C').trim();

@@ -135,3 +135,26 @@ a:hover{color:#96745A}
 .tuc-fallback-btns .tuc-send{text-decoration:none;width:auto}
 .tuc-send-alt{background:transparent !important}
 @media (max-width:700px){.tuc-fallback-btns .tuc-send{flex:1 1 100%}}
+/* hidden field that only bots fill */
+.tuc-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+/* thank-you envelope: navy envelope opens, a white card rises with "Thank you" */
+.tuc-ty{position:fixed;inset:0;z-index:9995;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(247,244,238,.82);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);animation:tucTyFade .35s ease-out both}
+.tuc-ty-stage{--w:min(360px,82vw);--h:calc(var(--w) * .64);position:relative;width:var(--w);height:var(--h);margin-top:calc(var(--h) * .55);perspective:900px;animation:tucTyIn .5s cubic-bezier(.2,.8,.2,1) both}
+.tuc-ty-back,.tuc-ty-front,.tuc-ty-flap{position:absolute;left:0;width:100%;border-radius:6px}
+.tuc-ty-back{top:0;height:100%;z-index:1;background:linear-gradient(180deg,#16243F,#1B2B4A);box-shadow:0 24px 50px rgba(10,18,36,.45)}
+.tuc-ty-front{top:0;height:100%;z-index:3;background:linear-gradient(160deg,#22345A 0%,#1B2B4A 55%,#17253F 100%);clip-path:polygon(0 0,50% 52%,100% 0,100% 100%,0 100%);box-shadow:inset 0 1px 0 rgba(236,205,161,.12)}
+.tuc-ty-front::after{content:"";position:absolute;inset:0;border-radius:6px;background:linear-gradient(32deg,transparent 49.6%,rgba(184,155,101,.35) 50%,transparent 50.4%),linear-gradient(-32deg,transparent 49.6%,rgba(184,155,101,.35) 50%,transparent 50.4%)}
+.tuc-ty-flap{top:0;height:58%;z-index:4;transform-origin:50% 0;background:linear-gradient(180deg,#24375D,#1D2E50);clip-path:polygon(0 0,100% 0,50% 100%);animation:tucTyFlap .6s .55s cubic-bezier(.4,.1,.3,1) both}
+.tuc-ty-seal{position:absolute;left:50%;bottom:-2px;transform:translate(-50%,0);width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#D2B583,#B89B65 55%,#96745A);color:#1B2B4A;font:600 12px 'Brygada 1918','Brygada 1918 Fallback',Georgia,serif;letter-spacing:.06em;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.35);animation:tucTySeal .3s .5s ease-in both}
+.tuc-ty-card{position:absolute;left:6%;top:6%;width:88%;height:88%;z-index:2;box-sizing:border-box;border-radius:3px;background:#FCFAF4;box-shadow:0 10px 28px rgba(10,18,36,.3);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:9%;gap:6px;animation:tucTyCard .9s 1.05s cubic-bezier(.2,.9,.25,1) both}
+.tuc-ty-word{margin:0;font-family:'Italianno',cursive;font-size:calc(var(--w) * .2);line-height:1;color:#1B2B4A}
+.tuc-ty-close{position:absolute;top:8px;right:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:0;border-radius:50%;background:transparent;color:#6E5440;cursor:pointer;opacity:0;animation:tucTyFade .3s 1.9s both}
+.tuc-ty-close:hover,.tuc-ty-close:focus-visible{background:rgba(27,43,74,.08);color:#1B2B4A;outline:none}
+.tuc-ty-close:focus-visible{box-shadow:0 0 0 2px #B89B65}
+@keyframes tucTyFade{from{opacity:0}to{opacity:1}}
+@keyframes tucTyIn{from{opacity:0;transform:translateY(24px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes tucTyFlap{0%{transform:rotateX(0);z-index:4}99%{z-index:4}100%{transform:rotateX(180deg);z-index:0}}
+@keyframes tucTySeal{to{opacity:0;transform:translate(-50%,0) scale(.6)}}
+@keyframes tucTyCard{from{transform:translateY(0)}to{transform:translateY(-62%);z-index:5}}
+@media (prefers-reduced-motion:reduce){.tuc-ty,.tuc-ty-stage,.tuc-ty-seal,.tuc-ty-close{animation:none;opacity:1}.tuc-ty-flap{animation:none;transform:rotateX(180deg);z-index:0}.tuc-ty-seal{opacity:0}.tuc-ty-card{animation:none;transform:translateY(-62%);z-index:5}}
