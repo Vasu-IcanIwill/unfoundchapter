@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ENQUIRY_ENDPOINT, ENQUIRY_EMAIL } from '../utils/env.js';
+import { ENQUIRY_ENDPOINT, ENQUIRY_EMAIL, WEB3FORMS_KEY } from '../utils/env.js';
 import { attachHandwriting, alignToRules } from '../utils/handwriting.js';
 import { track } from '../utils/consent.js';
 import { COUNTRIES, countryOf, digitsHint, phoneError, cleanPhone } from '../utils/countries.js';
@@ -138,7 +138,18 @@ export default function ContactForm() {
         body.set('_replyto', values.email.trim());
         let ok = false;
         try {
-          const res = await fetch(ENQUIRY_ENDPOINT, { method: 'POST', body, headers: { Accept: 'application/json' }, signal: ctrl.signal });
+          let res;
+          if (WEB3FORMS_KEY) {
+            const fields = Object.fromEntries([...body.entries()].filter(([k, v]) => typeof v === 'string' && !k.startsWith('_') && k !== 'consent'));
+            res = await fetch('https://api.web3forms.com/submit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+              body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject: `New enquiry: ${label}`, from_name: 'Unfound Chapter website', replyto: values.email.trim(), botcheck: '', ...fields }),
+              signal: ctrl.signal,
+            });
+          } else {
+            res = await fetch(ENQUIRY_ENDPOINT, { method: 'POST', body, headers: { Accept: 'application/json' }, signal: ctrl.signal });
+          }
           const data = res.ok ? await res.json().catch(() => ({})) : {};
           ok = res.ok && String(data.success) !== 'false';
         } catch { ok = false; }

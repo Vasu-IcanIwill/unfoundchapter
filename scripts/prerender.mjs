@@ -49,7 +49,7 @@ const PAGE_FONTS = {
 // Measured with Lighthouse (median of 3 runs, mobile): the home page does best with its CSS inlined and
 // four fonts preloaded; the lighter pages do best with linked (cacheable) CSS and only the two header fonts.
 const PAGE_DELIVERY = { index: { inlineCss: true, fonts: 4 } };
-const DEFAULT_DELIVERY = { inlineCss: false, fonts: 2 };
+const DEFAULT_DELIVERY = { inlineCss: true, fonts: 2 }; // inlined everywhere: a page never shows unstyled if one CSS request fails
 const delivery = (name) => PAGE_DELIVERY[name] || DEFAULT_DELIVERY;
 const preloadFor = (name) => (PAGE_FONTS[name] || []).slice(0, Number(process.env.TUC_PRELOAD_LIMIT || delivery(name).fonts))
   .map((key) => assets.find((f) => f.startsWith(`${key}-`) && f.endsWith('.woff2')))
