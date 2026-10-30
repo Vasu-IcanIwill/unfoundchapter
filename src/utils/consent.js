@@ -2,6 +2,8 @@
 // Google Tag Manager loads on every page from the snippet in each page's <head>, with all consent set to
 // "denied" until the visitor chooses. "Accept" grants it; "Only essential" keeps it denied. While denied,
 // Google tags send only cookie-free pings, and Meta tags must be set in Tag Manager to require ad_storage.
+import { track as vercelTrack } from '@vercel/analytics';
+
 export const GTM_ID = 'GTM-M4FVNKG7';
 const KEY = 'tuc-consent'; // 'all' | 'essential'
 export const OPEN_EVENT = 'tuc:consent-open';
@@ -25,6 +27,7 @@ export function saveChoice(choice) {
 export function track(event, params = {}) {
   if (typeof window === 'undefined') return;
   dl().push({ event, page_path: window.location.pathname, ...params });
+  try { vercelTrack(event, params); } catch { /* counted only on Vercel Pro; ignored otherwise */ }
 }
 
 /** Counts taps on WhatsApp, call and email links anywhere on the page. */
