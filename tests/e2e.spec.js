@@ -446,13 +446,13 @@ test.describe('cookie notice, Google Analytics and Tag Manager', () => {
   const consents = (page) => page.evaluate(() => window.dataLayer.filter((e) => e && e[0] === 'consent').map((e) => [e[1], e[2].analytics_storage, e[2].ad_storage]));
   const button = (page, name) => page.locator('.tuc-consent-bar').getByRole('button', { name, exact: true });
 
-  test('before a choice: everything denied, Google Analytics not loaded', async ({ page }) => {
+  test('before a choice: everything denied, nothing from Google or Meta loads', async ({ page }) => {
     const hits = [];
     await page.route(TAGS, (r) => { hits.push(r.request().url()); return r.fulfill({ status: 200, body: '' }); });
     await page.goto('/dev-diwali.html');
     await expect(page.locator('.tuc-consent-bar')).toBeVisible();
     await page.waitForTimeout(600);
-    expect(hits).toEqual([GTM]);
+    expect(hits).toEqual([]);
     expect(await consents(page)).toEqual([['default', 'denied', 'denied']]);
   });
 
@@ -463,6 +463,7 @@ test.describe('cookie notice, Google Analytics and Tag Manager', () => {
     await button(page, 'Accept all').click();
     await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
     await expect.poll(() => hits.includes(GA)).toBe(true);
+    await expect.poll(() => hits.includes(GTM)).toBe(true);
     expect((await consents(page)).at(-1)).toEqual(['update', 'granted', 'granted']);
     const cfg = await page.evaluate(() => window.dataLayer.find((e) => e && e[0] === 'config'));
     expect(cfg[1]).toBe('G-MT47TTPL1C');
@@ -472,6 +473,7 @@ test.describe('cookie notice, Google Analytics and Tag Manager', () => {
     await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
     expect((await consents(page))[0]).toEqual(['default', 'granted', 'granted']);
     await expect.poll(() => hits.includes(GA)).toBe(true);
+    await expect.poll(() => hits.includes(GTM)).toBe(true);
   });
 
   test('Choose: Analytics only loads Google Analytics but keeps advertising denied', async ({ page }) => {
@@ -483,6 +485,7 @@ test.describe('cookie notice, Google Analytics and Tag Manager', () => {
     await button(page, 'Save my choices').click();
     await expect.poll(() => hits.includes(GA)).toBe(true);
     expect((await consents(page)).at(-1)).toEqual(['update', 'granted', 'denied']);
+    expect(hits).not.toContain(GTM); // Analytics only: the advertising container never loads
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('tuc-consent-v2')));
     expect(saved).toMatchObject({ analytics: true, ads: false, lang: 'en', version: '2026-10-30' });
     expect(saved.at).toMatch(/^\d{4}-\d\d-\d\dT/);
@@ -496,7 +499,7 @@ test.describe('cookie notice, Google Analytics and Tag Manager', () => {
     await page.reload();
     await page.waitForTimeout(800);
     await expect(page.locator('.tuc-consent-bar')).toHaveCount(0);
-    expect(hits.filter((u) => u === GA || /facebook/.test(u))).toHaveLength(0);
+    expect(hits).toEqual([]); // no Google Analytics, no Tag Manager, nothing from Meta
     expect((await consents(page))[0]).toEqual(['default', 'denied', 'denied']);
     await page.locator('footer a', { hasText: 'Cookie settings' }).click();
     await expect(page.locator('.tuc-consent-bar input[name="analytics"]')).toBeVisible();

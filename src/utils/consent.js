@@ -3,8 +3,8 @@
 // recorded with the notice version and time, and it can be changed or withdrawn at any time ("Cookie settings").
 //
 // Google Analytics 4 (gtag.js) is loaded ONLY after the visitor allows Analytics.
-// Google Tag Manager (advertising tags) loads on every page from the <head> snippet with all consent "denied";
-// Advertising consent grants ad_storage. Meta tags in Tag Manager must require ad_storage.
+// Google Tag Manager carries the advertising tags (Meta Pixel, Google Ads). It loads ONLY after the visitor allows
+// Advertising: from the <head> snippet on return visits, or from loadAdvertising() at the moment they allow it.
 import { GA_ID } from './env.js';
 import { track as vercelTrack } from '@vercel/analytics';
 
@@ -39,6 +39,17 @@ export function loadAnalytics() {
   gtag('config', GA_ID, { allow_google_signals: false, allow_ad_personalization_signals: false });
 }
 
+/** Loads Google Tag Manager (Meta Pixel, Google Ads), once, after Advertising is allowed. */
+export function loadAdvertising() {
+  if (typeof document === 'undefined' || window.__tucGtm) return;
+  window.__tucGtm = true;
+  dl().push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`;
+  document.head.appendChild(s);
+}
+
 export function applyChoice(c) {
   gtag('consent', 'update', {
     analytics_storage: state(c.analytics),
@@ -47,6 +58,7 @@ export function applyChoice(c) {
     ad_personalization: state(c.ads),
   });
   if (c.analytics) loadAnalytics();
+  if (c.ads) loadAdvertising();
 }
 
 export function saveChoice({ analytics, ads, lang = 'en' }) {
