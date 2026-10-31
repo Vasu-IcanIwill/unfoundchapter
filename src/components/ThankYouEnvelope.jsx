@@ -1,23 +1,35 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 /**
  * Shown after an enquiry is sent: a navy invitation envelope opens and a white card rises out with
- * "Thank you" in script. Close with the button (top right of the card), Escape, or a click outside.
+ * "Thank you" in script. It closes by itself 3 seconds after the card is out (paused while the pointer is over it),
+ * or straight away with the close button, Escape, or a click outside. The thank-you line under the form stays.
  */
+const OUT_MS = 1400; // the card is fully out of the envelope
+const HOLD_MS = 3000; // then it stays this long
 export default function ThankYouEnvelope({ onClose }) {
   const closeRef = useRef(null);
+  const [leaving, setLeaving] = useState(false);
+  const paused = useRef(false);
+  useEffect(() => {
+    let t;
+    const tick = () => { t = setTimeout(() => { if (paused.current) tick(); else setLeaving(true); }, HOLD_MS); };
+    const start = setTimeout(tick, OUT_MS);
+    return () => { clearTimeout(start); clearTimeout(t); };
+  }, []);
+  useEffect(() => { if (!leaving) return undefined; const t = setTimeout(onClose, 450); return () => clearTimeout(t); }, [leaving, onClose]);
   useEffect(() => {
     const prev = document.activeElement;
-    const t = setTimeout(() => closeRef.current && closeRef.current.focus({ preventScroll: true }), 1900);
+    const t = setTimeout(() => closeRef.current && closeRef.current.focus({ preventScroll: true }), OUT_MS);
     const onKey = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
     return () => { clearTimeout(t); document.removeEventListener('keydown', onKey); if (prev && prev.focus) prev.focus({ preventScroll: true }); };
   }, [onClose]);
 
   return createPortal(
-    <div className="tuc-ty" role="dialog" aria-modal="true" aria-label="Thank you" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="tuc-ty-stage">
+    <div className={leaving ? 'tuc-ty is-leaving' : 'tuc-ty'} role="dialog" aria-modal="true" aria-label="Thank you" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="tuc-ty-stage" onMouseEnter={() => { paused.current = true; }} onMouseLeave={() => { paused.current = false; }}>
         <div className="tuc-ty-back" />
         <div className="tuc-ty-card">
           <button ref={closeRef} type="button" className="tuc-ty-close" aria-label="Close" data-tuc-orbit="off" onClick={onClose}>

@@ -12,7 +12,7 @@ const CHOICES = [
   { value: 'dev-diwali', title: <>We write your <span className="tuc-cw">chapter</span></>, note: 'Dev Deepawali in Varanasi, 23 to 25 November 2026' },
 ];
 const EMPTY = { journey: '', name: '', email: '', cc: 'IN', phone: '', travellers: '', from: '', to: '', message: '', consent: false };
-const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[A-Za-z]{2,}$/;
 
 /** Today as YYYY-MM-DD in the visitor's own time zone (for the date pickers' minimum). */
 export function todayISO(d = new Date()) {
@@ -65,16 +65,23 @@ function enquiryText(v, label) {
 }
 const FAILED = <>That did not go through. Please message us on <a href="https://wa.me/919147746406" target="_blank" rel="noopener">WhatsApp at +91 91477 46406</a> or write to <a href="mailto:hello@unfoundchapter.com">hello@unfoundchapter.com</a>.</>;
 
+const FIELD_NAMES = { journey: 'Which chapter', name: 'Your name', email: 'Email', phone: 'Phone or WhatsApp', dates: 'Preferred dates', consent: 'Consent' };
+const FIELD_TARGET = { journey: 'input[name="journey"]', name: 'input[name="name"]', email: 'input[name="email"]', phone: 'input[name="phone"]', dates: 'input[name="from"]', consent: 'input[name="consent"]' };
+
 function validate(v, today) {
   const e = {};
   if (!v.journey) e.journey = 'Choose one of the chapters.';
-  if (!v.name.trim()) e.name = 'Enter your name.';
+  const name = v.name.trim();
+  if (!name) e.name = 'Enter your name.';
+  else if (name.length < 2 || !/\p{L}/u.test(name)) e.name = 'Enter your full name.';
   const email = v.email.trim();
   if (!email) e.email = 'Enter your email.';
-  else if (!EMAIL_RE.test(email)) e.email = 'Check the email address.';
+  else if (!EMAIL_RE.test(email)) e.email = 'Enter an email address like name@example.com.';
   const c = countryOf(v.cc);
   if (!v.phone) e.phone = 'Enter your phone or WhatsApp number.';
   else if (!/^\d+$/.test(v.phone) || v.phone.length < c.min || v.phone.length > c.max) e.phone = phoneError(c);
+  else if (c.iso === 'IN' && !/^[6-9]/.test(v.phone)) e.phone = 'Indian mobile numbers start with 6, 7, 8 or 9.';
+  else if (/^(\d)\1+$/.test(v.phone)) e.phone = 'Check the number: it looks incomplete.';
   if (v.journey !== 'dev-diwali') {
     if (v.from && v.from < today) e.dates = 'Choose dates from today onwards.';
     else if (v.to && !v.from) e.dates = 'Choose a start date too.';
@@ -90,6 +97,23 @@ export default function ContactForm() {
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState({ kind: 'idle', text: '' });
   const [thanks, setThanks] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  // check a field when the visitor leaves it (not while they are still typing)
+  const pressingSend = useRef(false);
+  const check = (key) => () => {
+    if (pressingSend.current) return; // the visitor is pressing Request invite: the full check runs on submit, and the button must not move under the click
+    const e = validate(values, today || todayISO());
+    if (key === 'email' && !values.email.trim()) return; // an empty field is only an error on submit
+    if (key === 'name' && !values.name.trim()) return;
+    if (key === 'phone' && !values.phone) return;
+    setErrors((er) => ({ ...er, [key]: e[key] }));
+  };
+  const focusField = (key) => {
+    const el = key && formRef.current && formRef.current.querySelector(FIELD_TARGET[key]);
+    if (!el) return;
+    el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    el.focus({ preventScroll: true });
+  };
   const formRef = useRef(null);
   // set after hydration so the prerendered page never carries a stale build date
   const [today, setToday] = useState('');
@@ -142,10 +166,8 @@ export default function ContactForm() {
     setErrors(found);
     setStatus({ kind: 'idle', text: '' });
     if (Object.keys(found).length) {
-      requestAnimationFrame(() => {
-        const first = formRef.current && formRef.current.querySelector('.tuc-err');
-        if (first) first.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      });
+      setShowSummary(true);
+      requestAnimationFrame(() => focusField(Object.keys(FIELD_NAMES).find((k) => found[k])));
       return;
     }
     const label = JOURNEY_LABEL[values.journey];
@@ -213,11 +235,11 @@ export default function ContactForm() {
       </fieldset>
       <div className="tuc-grid">
         <label className="tuc-field"><span>Your name</span>
-          <input name="name" autoComplete="name" required value={values.name} onChange={set('name')} aria-invalid={!!errors.name} aria-describedby={errors.name ? 'err-name' : undefined} />
+          <input name="name" autoComplete="name" spellCheck={false} onBlur={check('name')} required value={values.name} onChange={set('name')} aria-invalid={!!errors.name} aria-describedby={errors.name ? 'err-name' : undefined} />
           {err('name', 'err-name')}
         </label>
         <label className="tuc-field"><span>Email</span>
-          <input name="email" type="email" autoComplete="email" required value={values.email} onChange={set('email')} aria-invalid={!!errors.email} aria-describedby={errors.email ? 'err-email' : undefined} />
+          <input name="email" type="email" autoComplete="email" spellCheck={false} onBlur={check('email')} required value={values.email} onChange={set('email')} aria-invalid={!!errors.email} aria-describedby={errors.email ? 'err-email' : undefined} />
           {err('email', 'err-email')}
         </label>
         <div className="tuc-field" role="group" aria-labelledby="lbl-phone"><span id="lbl-phone">Phone or WhatsApp</span>
@@ -225,7 +247,7 @@ export default function ContactForm() {
             <select name="cc" aria-label="Country code" autoComplete="tel-country-code" value={values.cc} onChange={set('cc')}>
               {COUNTRIES.map((c) => <option key={c.iso} value={c.iso}>+{c.dial} {c.name}</option>)}
             </select>
-            <input name="phone" type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={country.max} autoComplete="tel-national" required placeholder={digitsHint(country)} aria-label={`Phone or WhatsApp number, ${digitsHint(country)}`} value={values.phone} onChange={set('phone')} aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'err-phone' : undefined} />
+            <input name="phone" type="tel" onBlur={check('phone')} inputMode="numeric" pattern="[0-9]*" maxLength={country.max} autoComplete="tel-national" required placeholder={digitsHint(country)} aria-label={`Phone or WhatsApp number, ${digitsHint(country)}`} value={values.phone} onChange={set('phone')} aria-invalid={!!errors.phone} aria-describedby={errors.phone ? 'err-phone' : undefined} />
           </div>
           {err('phone', 'err-phone')}
         </div>
@@ -248,7 +270,7 @@ export default function ContactForm() {
         </fieldset>
         <div className="tuc-field tuc-fixed"><span>Dates</span><p>23 to 25 November 2026</p></div>
         <label className="tuc-field tuc-msg"><span>Anything we should know?</span>
-          <textarea name="message" rows={3} placeholder="Optional" value={values.message} onChange={set('message')} />
+          <textarea name="message" rows={3} spellCheck={false} placeholder="Optional" value={values.message} onChange={set('message')} />
         </label>
       </div>
       <div className="tuc-hp" aria-hidden="true"><label>Company<input name="company" tabIndex={-1} autoComplete="off" defaultValue="" /></label></div>
@@ -258,7 +280,15 @@ export default function ContactForm() {
       </label>
       {err('consent', 'err-consent')}
       <div className="tuc-actions">
-        <button type="submit" className="tuc-send" disabled={status.kind === 'sending'}>Request invite</button>
+        {showSummary && Object.keys(errors).some((k) => errors[k]) ? (
+          <div className="tuc-summary" role="alert">
+            <p>{(() => { const n = Object.keys(FIELD_NAMES).filter((k) => errors[k]).length; return `Please check ${n === 1 ? 'this field' : `these ${n} fields`} before sending:`; })()}</p>
+            <ul>{Object.keys(FIELD_NAMES).filter((k) => errors[k]).map((k) => (
+              <li key={k}><a href={`#${k}`} onClick={(e) => { e.preventDefault(); focusField(k); }}>{FIELD_NAMES[k]}</a>: {errors[k]}</li>
+            ))}</ul>
+          </div>
+        ) : null}
+        <button type="submit" className="tuc-send" onPointerDown={() => { pressingSend.current = true; }} onPointerUp={() => { setTimeout(() => { pressingSend.current = false; }, 0); }} onPointerCancel={() => { pressingSend.current = false; }} disabled={status.kind === 'sending'}>Request invite</button>
         {status.kind === 'fallback' ? (
           <div className="tuc-status tuc-fallback" role="status" aria-live="polite">
             <p>Our online form is not responding just now. Your details are ready to send in one tap:</p>

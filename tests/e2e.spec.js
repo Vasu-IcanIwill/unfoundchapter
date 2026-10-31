@@ -225,7 +225,7 @@ test.describe('enquiry form', () => {
     await expect(page.locator('#err-name')).toHaveCount(0);
     await page.fill('input[name="email"]', 'not-an-email');
     await page.getByRole('button', { name: 'Request invite' }).click();
-    await expect(page.locator('input[name="email"] ~ .tuc-err')).toHaveText('Check the email address.');
+    await expect(page.locator('input[name="email"] ~ .tuc-err')).toHaveText('Enter an email address like name@example.com.');
   });
 
   test('phone takes digits only and dates cannot be in the past', async ({ page }) => {
@@ -285,6 +285,44 @@ test.describe('enquiry form', () => {
     await env.getByRole('button', { name: 'Close' }).click();
     await expect(env).toHaveCount(0);
     await expect(page.locator('.tuc-status')).toHaveText('Thank you. A planner will write to you within one working day.');
+  });
+
+  test('the thank-you envelope closes by itself about 3 seconds after the card is out', async ({ page }) => {
+    await page.route('**/api/enquiry', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true,"confirmed":true}' }));
+    await page.goto('/contact.html?journey=dev-diwali');
+    await page.fill('input[name="name"]', 'Asha Sharma');
+    await page.fill('input[name="email"]', 'asha@example.com');
+    await page.fill('input[name="phone"]', '9876543210');
+    await page.check('input[name="consent"]');
+    await page.getByRole('button', { name: 'Request invite' }).click();
+    const env = page.getByRole('dialog', { name: 'Thank you' });
+    await expect(env).toBeVisible();
+    await page.waitForTimeout(3800);
+    await expect(env).toBeVisible(); // still showing about 3 seconds in
+    await expect(env).toHaveCount(0, { timeout: 2500 }); // gone by about 5 seconds
+    await expect(page.locator('.tuc-status')).toHaveText(/Thank you/); // the line under the form stays
+  });
+
+  test('mistakes are shown clearly: on leaving a field, and in a summary by the button that jumps to the field', async ({ page }) => {
+    await page.goto('/contact.html?journey=own');
+    await page.fill('input[name="email"]', 'testbhscbjab');
+    await page.locator('input[name="email"]').blur();
+    await expect(page.locator('#err-email')).toHaveText('Enter an email address like name@example.com.');
+    await expect(page.locator('input[name="email"]')).toHaveCSS('border-bottom-color', 'rgb(179, 38, 30)');
+    await page.fill('input[name="name"]', 'test');
+    await page.fill('input[name="phone"]', '1212121212');
+    await page.getByRole('button', { name: 'Request invite' }).click();
+    const summary = page.locator('.tuc-summary');
+    await expect(summary).toBeVisible();
+    await expect(summary).toContainText('Please check these 3 fields before sending');
+    await expect(summary).toContainText('Indian mobile numbers start with 6, 7, 8 or 9.');
+    await expect(page.locator('input[name="email"]')).toBeFocused(); // the first problem field gets focus
+    await summary.getByRole('link', { name: 'Consent' }).click();
+    await expect(page.locator('input[name="consent"]')).toBeFocused();
+    await page.fill('input[name="email"]', 'asha@example.com');
+    await page.fill('input[name="phone"]', '9876543210');
+    await page.check('input[name="consent"]');
+    await expect(summary).toHaveCount(0);
   });
 
   test('if the form service is down, the enquiry is ready to send on WhatsApp or by email', async ({ page }) => {
