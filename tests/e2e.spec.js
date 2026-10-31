@@ -209,6 +209,8 @@ test('star orbit appears on hover and cleans up', async ({ page }) => {
 
 test.describe('enquiry form', () => {
   test('preselects the chapter from ?journey=', async ({ page }) => {
+    await page.goto('/contact.html');
+    await expect(page.locator('input[name="journey"][value="own"]')).toBeChecked(); // a sensible default, so no chapter error
     await page.goto('/contact.html?journey=own');
     await expect(page.locator('input[name="journey"][value="own"]')).toBeChecked();
     await page.goto('/contact.html?journey=dev-diwali');
@@ -219,7 +221,7 @@ test.describe('enquiry form', () => {
     await page.goto('/contact.html');
     await page.getByRole('button', { name: 'Request invite' }).click();
     await expect(page.locator('.tuc-err')).toHaveText([
-      'Choose one of the chapters.', 'Enter your name.', 'Enter your email.', 'Enter your phone or WhatsApp number.', 'Please tick the box so we can reply to you.',
+      'Enter your name.', 'Enter your email.', 'Enter your phone or WhatsApp number.', 'Please tick the box so we can reply to you.',
     ]);
     await page.fill('input[name="name"]', 'Asha');
     await expect(page.locator('#err-name')).toHaveCount(0);

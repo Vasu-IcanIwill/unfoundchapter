@@ -11,7 +11,7 @@ const CHOICES = [
   { value: 'own', title: <>Write your own <span className="tuc-cw">chapter</span></>, note: 'A private journey, planned around you' },
   { value: 'dev-diwali', title: <>We write your <span className="tuc-cw">chapter</span></>, note: 'Dev Deepawali in Varanasi, 23 to 25 November 2026' },
 ];
-const EMPTY = { journey: '', name: '', email: '', cc: 'IN', phone: '', travellers: '', from: '', to: '', message: '', consent: false };
+const EMPTY = { journey: 'own', name: '', email: '', cc: 'IN', phone: '', travellers: '', from: '', to: '', message: '', consent: false };
 const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[A-Za-z]{2,}$/;
 
 /** Today as YYYY-MM-DD in the visitor's own time zone (for the date pickers' minimum). */
@@ -70,7 +70,6 @@ const FIELD_TARGET = { journey: 'input[name="journey"]', name: 'input[name="name
 
 function validate(v, today) {
   const e = {};
-  if (!v.journey) e.journey = 'Choose one of the chapters.';
   const name = v.name.trim();
   if (!name) e.name = 'Enter your name.';
   else if (name.length < 2 || !/\p{L}/u.test(name)) e.name = 'Enter your full name.';
