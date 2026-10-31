@@ -148,3 +148,26 @@ a:hover{color:#96745A}
 .tuc-priv-num{position:relative;z-index:0;flex:0 0 auto;align-self:flex-start;box-sizing:border-box;width:30px;margin:-32px -4px 0 -4px;padding:26px 0 22px !important;text-align:center;font-size:15px !important;color:#FBEFEA !important;filter:drop-shadow(0 3px 4px rgba(0,0,0,.35))}
 .tuc-priv-num::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#86251F 0%,#B5352D 52%,#952B25 100%);clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%)}
 .tuc-priv-num::after{content:"";position:absolute;left:0;right:0;top:0;height:6px;z-index:-1;background:rgba(40,8,6,.35)}
+
+/* "Request a conversation": invitation-style call to action. Double gold rule, gold fill on hover,
+   arrow slides on, a slow shimmer every few seconds; press feedback on touch. */
+.tuc-cta{position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:16px;min-height:58px;padding:0 38px 0 42px;border:1px solid #B89B65;border-radius:2px;background:rgba(252,250,244,.6);color:#1B2B4A;font:500 11px/1 "Montserrat","Montserrat Fallback",system-ui,sans-serif;letter-spacing:.34em;text-transform:uppercase;text-decoration:none;overflow:hidden;cursor:pointer;box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 8px 22px rgba(150,116,90,.12);transition:color .45s ease,box-shadow .45s ease,transform .45s cubic-bezier(.2,.8,.2,1),border-color .45s ease;-webkit-tap-highlight-color:transparent}
+.tuc-cta::before{content:"";position:absolute;inset:4px;border:1px solid rgba(184,155,101,.55);border-radius:1px;pointer-events:none;transition:inset .45s cubic-bezier(.2,.8,.2,1),border-color .45s ease}
+.tuc-cta::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(100deg,#9C7F4E 0%,#B89B65 30%,#D6BC8C 50%,#B89B65 70%,#9C7F4E 100%);transform:scaleX(0);transform-origin:left center;transition:transform .55s cubic-bezier(.65,0,.25,1)}
+.tuc-cta-label{position:relative;padding-top:1px}
+.tuc-cta-label::after{content:"";position:absolute;top:-30px;bottom:-30px;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);transform:skewX(-18deg);animation:tucCtaShine 6s 1.5s ease-in-out infinite;pointer-events:none}
+.tuc-cta-arrow{flex:0 0 auto;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+@media (hover:hover) and (pointer:fine){
+  .tuc-cta:hover{color:#1B2B4A;border-color:#9C7F4E;transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 14px 32px rgba(150,116,90,.28)}
+  .tuc-cta:hover::after{transform:scaleX(1)}
+  .tuc-cta:hover::before{inset:6px;border-color:rgba(252,250,244,.75)}
+  .tuc-cta:hover .tuc-cta-arrow{transform:translateX(6px)}
+}
+.tuc-cta:focus-visible{outline:none;box-shadow:0 0 0 3px #F7F4EE,0 0 0 5px #1B2B4A}
+.tuc-cta:focus-visible::after{transform:scaleX(1)}
+.tuc-cta:active{transform:translateY(0) scale(.98);transition-duration:.12s}
+.tuc-cta:active::after{transform:scaleX(1);transition-duration:.25s}
+@keyframes tucCtaShine{0%,70%{left:-60%}100%{left:130%}}
+@media (max-width:700px){.tuc-cta{width:min(calc(100% - 32px),300px);min-height:56px;padding:0 20px;gap:12px;letter-spacing:.24em;font-size:10.5px}}
+@media (prefers-reduced-motion:reduce){.tuc-cta,.tuc-cta::before,.tuc-cta::after,.tuc-cta-arrow{transition:none}.tuc-cta-label::after{animation:none;display:none}.tuc-cta:hover{transform:none}}
+
