@@ -28,10 +28,14 @@ const SENT_TEXT = 'Thank you. A planner will write to you within one working day
 async function sendEnquiry(fields, formData, label, replyTo, signal) {
   const attempts = [
     () => fetch('/api/enquiry', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(fields), signal }),
-    WEB3FORMS_KEY ? () => fetch('https://api.web3forms.com/submit', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject: `New enquiry: ${label}`, from_name: 'Unfound Chapter website', replyto: replyTo, botcheck: '', ...fields }), signal,
-    }) : null,
+    // sent as plain form data (Web3Forms' documented way): a "simple" request with no CORS preflight,
+    // which Web3Forms' firewall can refuse
+    WEB3FORMS_KEY ? () => {
+      const fd = new FormData();
+      Object.entries({ access_key: WEB3FORMS_KEY, subject: `New enquiry: ${label}`, from_name: 'Unfound Chapter website', replyto: replyTo, ...fields })
+        .forEach(([k, v]) => fd.append(k, v));
+      return fetch('https://api.web3forms.com/submit', { method: 'POST', body: fd, signal });
+    } : null,
     () => fetch(ENQUIRY_ENDPOINT, { method: 'POST', body: formData, headers: { Accept: 'application/json' }, signal }),
   ].filter(Boolean);
   for (const attempt of attempts) {
