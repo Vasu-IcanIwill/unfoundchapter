@@ -22,7 +22,7 @@ export function initMobileMenu() {
   head.querySelectorAll('.tuc-nav-l a, .tuc-nav-r a').forEach((a) => {
     const li = document.createElement('li');
     const link = document.createElement('a');
-    link.href = a.getAttribute('href');
+    link.href = a.dataset.menuHref || a.getAttribute('href'); // a phone-menu destination can differ from the header's
     link.textContent = a.textContent.trim();
     if (a === document.querySelector('.tuc-nav-r a:last-child')) link.className = 'is-cta';
     li.appendChild(link);

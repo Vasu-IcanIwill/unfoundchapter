@@ -85,12 +85,23 @@ test('navigation targets are the agreed pages', async ({ page }) => {
   await expect(page).toHaveURL(/\/dev-diwali\.html$/);
 });
 
+test('the phone menu Itinerary link jumps to the download button', async ({ browser }) => {
+  const c = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true });
+  const page = await c.newPage();
+  await page.goto('/dev-diwali.html');
+  await page.locator('.tuc-menu-btn').click();
+  await page.locator('.tuc-menu-list a', { hasText: 'Itinerary' }).click();
+  await expect(page).toHaveURL(/#tuc-dl$/);
+  await expect(page.locator('#tuc-dl')).toBeInViewport();
+  await c.close();
+});
+
 test('the itinerary button downloads the brochure PDF', async ({ page, request }) => {
   await page.goto('/dev-diwali.html');
   const dl = page.locator('a.tuc-dl');
   await expect(dl).toHaveAttribute('href', '/docs/The-Unfound-Chapter-Dev-Deepawali-Itinerary.pdf');
   await expect(dl).toHaveAttribute('download', 'The-Unfound-Chapter-Dev-Deepawali-Itinerary.pdf');
-  await expect(page.locator('#tuc-dl-soon')).toHaveText('13 pages · PDF · 7.6 MB');
+  await expect(page.locator('#tuc-dl-soon')).toHaveText('13 pages · PDF · 8.3 MB');
   const res = await request.get('/docs/The-Unfound-Chapter-Dev-Deepawali-Itinerary.pdf');
   expect(res.status()).toBe(200);
   expect(res.headers()['content-type']).toContain('pdf');
