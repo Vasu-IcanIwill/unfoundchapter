@@ -85,6 +85,18 @@ test('navigation targets are the agreed pages', async ({ page }) => {
   await expect(page).toHaveURL(/\/dev-diwali\.html$/);
 });
 
+test('on the group trip page the phone menu Enquire link opens the enquiry form with Dev Deepawali chosen', async ({ browser }) => {
+  const c = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true });
+  const page = await c.newPage();
+  await page.goto('/dev-diwali.html');
+  await page.locator('.tuc-menu-btn').click();
+  await page.locator('.tuc-menu-list a', { hasText: 'Enquire' }).click();
+  await expect(page).toHaveURL(/contact\.html\?journey=dev-diwali#tuc-enquiry$/);
+  await expect(page.locator('input[name="journey"][value="dev-diwali"]')).toBeChecked();
+  await expect(page.locator('#tuc-enquiry')).toBeInViewport();
+  await c.close();
+});
+
 test('the phone menu Itinerary link jumps to the download button', async ({ browser }) => {
   const c = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true });
   const page = await c.newPage();
