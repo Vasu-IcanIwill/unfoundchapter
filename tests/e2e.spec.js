@@ -442,15 +442,15 @@ test('SEO basics: canonical, Open Graph, robots and sitemap', async ({ page, req
   const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
   if (canonical) {
     expect(canonical).toMatch(/\/dev-diwali\.html$/);
-    expect(await page.locator('meta[property="og:image"]').getAttribute('content')).toMatch(/^https?:\/\/.+\/og-image\.png$/);
+    expect(await page.locator('meta[property="og:image"]').getAttribute('content')).toMatch(/^https?:\/\/.+\/og-uc\.png$/);
     const sitemap = await request.get('/sitemap.xml');
     expect(sitemap.status()).toBe(200);
     expect(await sitemap.text()).toContain('/dev-diwali.html');
   }
   const robots = await request.get('/robots.txt');
   expect(robots.status()).toBe(200);
-  expect(await page.locator('meta[property="og:title"]').getAttribute('content')).toContain('Dev Diwali');
-  const og = await request.get('/og-image.png');
+  expect(await page.locator('meta[property="og:title"]').getAttribute('content')).toContain('Dev Deepawali');
+  const og = await request.get('/og-uc.png');
   expect(og.status()).toBe(200);
 });
 
