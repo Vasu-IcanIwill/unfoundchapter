@@ -57,7 +57,15 @@ a{color:#1B2B4A;text-decoration:none}
  box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 0 0 1px rgba(150,116,90,.18),0 14px 30px rgba(70,48,22,.14);display:flex;flex-direction:column;gap:22px}
 .tuc-nb-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 .tuc-nb-body{display:flex;flex-wrap:wrap;gap:28px 48px;align-items:center;flex:1}
-.tuc-nb-text{flex:999 1 340px;min-width:0;display:flex;flex-direction:column;gap:16px;align-items:flex-start}
+.tuc-nb-text{flex:999 1 340px;min-width:0;display:flex;flex-direction:column;gap:0;align-items:flex-start}
+/* every line of the page text sits on a ruled line: each line box is one rule (two for the headline), the
+   column is snapped to the ruling by useNotebook, and each line drops so its baseline rests on the rule */
+.tuc-nb-sheet{--rule:34px}
+.tuc-nb-text>*{position:relative;top:calc(var(--rule) / 2 - .3em - 4px)}
+.tuc-nb-text>span:first-child{display:block;line-height:var(--rule)}
+.tuc-nb-text>h3{top:calc(var(--rule) - .3em - 4px)}
+.tuc-nb-text>h3 .tuc-chw{line-height:0!important}
+.tuc-nb-text>h3+p,.tuc-nb-text>a{margin-top:var(--rule)!important}
 .tuc-nb-art{flex:1 1 220px;min-width:0;max-width:280px}
 .tuc-nb-turn{align-self:flex-start;position:static;display:inline-flex;align-items:center;gap:10px;margin:6px 0 0;padding:6px 10px;min-height:44px;border:0;background:none;cursor:pointer;font-family:'Italianno',cursive;font-size:30px;line-height:1;color:#96745A}
 .tuc-nb-turn:focus-visible{color:#1B2B4A;outline:none}
@@ -75,6 +83,7 @@ a{color:#1B2B4A;text-decoration:none}
 .tuc-nb-stack{cursor:pointer}
 @media (prefers-reduced-motion: reduce){.tuc-nb-page,.tuc-nb-cover{transition:opacity .2s ease}}
 @media (max-width:700px){
+.tuc-nb-sheet{--rule:32px}
 .tuc-nb-bind{padding:0 5%}.tuc-nb-bind i:nth-child(n+11){display:none}
 .tuc-nb-sheet{padding:38px 20px 26px 46px;background:
  linear-gradient(90deg,transparent 30px,rgba(184,155,101,.55) 30px,rgba(184,155,101,.55) 31px,transparent 31px),

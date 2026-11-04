@@ -409,4 +409,31 @@ export default function useNotebook(rootRef) {
       cleanupBase();
     };
   }, [rootRef]);
+
+  // Keep each page's text column on the ruled lines. The column is centred beside its picture, so its top can
+  // land anywhere; shift it (by at most half a rule) so its lines line up with the ruling. Layout offsets are
+  // used, not on-screen boxes, so a page mid-turn measures the same as a flat one.
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || typeof window === 'undefined') return undefined;
+    const snap = () => {
+      root.querySelectorAll('.tuc-nb-sheet').forEach((sheet) => {
+        const col = sheet.querySelector('.tuc-nb-text');
+        if (!col) return;
+        const rule = parseFloat(getComputedStyle(sheet).getPropertyValue('--rule')) || 34;
+        col.style.transform = '';
+        let top = 0;
+        for (let el = col; el && el !== sheet; el = el.offsetParent) top += el.offsetTop;
+        let d = (rule - (top % rule)) % rule;
+        if (d > rule / 2) d -= rule;
+        col.style.transform = d ? `translateY(${d}px)` : '';
+      });
+    };
+    let raf = 0;
+    const later = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; snap(); }); };
+    snap();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(later);
+    window.addEventListener('resize', later);
+    return () => { window.removeEventListener('resize', later); if (raf) cancelAnimationFrame(raf); };
+  }, [rootRef]);
 }

@@ -578,3 +578,20 @@ document.querySelectorAll('.tuc-nb').forEach(function(nb){
 
 });
 })();
+
+/* keep each notebook page's text column on the ruled lines (same as the site's useNotebook) */
+(function () {
+  function snap() {
+    document.querySelectorAll('.tuc-nb-sheet').forEach(function (sheet) {
+      var col = sheet.querySelector('.tuc-nb-text'); if (!col) return;
+      var rule = parseFloat(getComputedStyle(sheet).getPropertyValue('--rule')) || 34;
+      col.style.transform = '';
+      var top = 0; for (var el = col; el && el !== sheet; el = el.offsetParent) top += el.offsetTop;
+      var d = (rule - (top % rule)) % rule; if (d > rule / 2) d -= rule;
+      col.style.transform = d ? 'translateY(' + d + 'px)' : '';
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', snap); else snap();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(snap);
+  window.addEventListener('resize', snap);
+})();
