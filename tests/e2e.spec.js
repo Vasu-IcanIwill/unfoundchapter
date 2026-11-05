@@ -120,7 +120,7 @@ test('the itinerary button downloads the brochure PDF', async ({ page, request }
   const dl = page.locator('a.tuc-dl');
   await expect(dl).toHaveAttribute('href', '/docs/The-Unfound-Chapter-Dev-Deepawali-Itinerary.pdf');
   await expect(dl).toHaveAttribute('download', 'The-Unfound-Chapter-Dev-Deepawali-Itinerary.pdf');
-  await expect(page.locator('#tuc-dl-soon')).toHaveText('13 pages · PDF · 8.3 MB');
+  await expect(page.locator('#tuc-dl-soon')).toHaveText('13 pages · PDF · 8.5 MB');
   const res = await request.get('/docs/The-Unfound-Chapter-Dev-Deepawali-Itinerary.pdf');
   expect(res.status()).toBe(200);
   expect(res.headers()['content-type']).toContain('pdf');
