@@ -2,7 +2,7 @@
 export const UPDATED_NOTE = 'Last updated: 26 October 2026';
 export const PRIVACY_NOTE = 'Last updated: 30 October 2026';
 
-const ADDRESS = 'Room-1, 7-H-23, Indira Gandhi Nagar, Sector 7, Jagatpura, Jaipur, Rajasthan 302017';
+const ADDRESS = 'Jaipur';
 
 export const TERMS = [
   { id: 'about', h: '1. About these terms', ps: [`Journeys are arranged by Unfound Chapter, a brand of Bitmartian Softech Private Limited (GSTIN 08AALCB9623J1Z8, principal place of business: ${ADDRESS}). By paying a deposit you agree to these terms.`] },
