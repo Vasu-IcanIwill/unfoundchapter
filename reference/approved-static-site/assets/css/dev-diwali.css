@@ -56,13 +56,3 @@ a:hover{color:#96745A}
 .tuc-dl:hover svg{color:#1B2B4A}
 }
 
-/* early-booking offer (hidden after its data-until date by the page script) */
-.tuc-offer{display:inline-flex;align-items:center;gap:12px;margin-top:22px;padding:11px 18px;border:1px solid rgba(179,38,30,.45);border-radius:999px;background:rgba(252,250,244,.85);font:500 10px/1.5 Montserrat,"Montserrat Fallback",system-ui,sans-serif;letter-spacing:.24em;text-transform:uppercase;color:#8A2A20;text-decoration:none;box-shadow:0 6px 16px rgba(70,48,22,.08);transition:border-color .2s ease,box-shadow .2s ease}
-.tuc-offer b{font-weight:600;color:#B3261E}
-.tuc-offer:hover,.tuc-offer:focus-visible{border-color:#B3261E;box-shadow:0 8px 20px rgba(70,48,22,.14)}
-.tuc-offer-dot{position:relative;flex:0 0 6px;width:6px;height:6px;border-radius:50%;background:#D7322A}
-.tuc-offer-dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(215,50,42,.5);animation:tucOfferPulse 1.8s ease-out infinite}
-@keyframes tucOfferPulse{from{transform:scale(.6);opacity:1}to{transform:scale(1.8);opacity:0}}
-@media (prefers-reduced-motion: reduce){.tuc-offer-dot::after{animation:none}}
-@media (max-width:700px){.tuc-offer{letter-spacing:.16em;padding:10px 14px;text-align:left}}
-.tuc-offer-line b{font-weight:600;color:#8A2A20}
