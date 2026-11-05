@@ -62,3 +62,6 @@ function render(){
 }
 render();
 if (comp.componentDidMount) comp.componentDidMount();
+
+/* time-limited content (an offer): removed once its data-until moment has passed */
+document.querySelectorAll('[data-until]').forEach(function (el) { var end = Date.parse(el.getAttribute('data-until')); if (end && Date.now() > end) el.remove(); });

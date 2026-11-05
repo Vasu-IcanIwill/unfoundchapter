@@ -6,7 +6,7 @@ const ADDRESS = 'Jaipur';
 
 export const TERMS = [
   { id: 'about', h: '1. About these terms', ps: [`Journeys are arranged by Unfound Chapter, a brand of Bitmartian Softech Private Limited (GSTIN 08AALCB9623J1Z8, principal place of business: ${ADDRESS}). By paying a deposit you agree to these terms.`] },
-  { id: 'prices', h: '2. Prices and GST', ps: ['Prices are per guest in Indian rupees unless your written quote says otherwise. GST is charged as applicable and shown on your invoice. Inclusions and exclusions are listed in your written itinerary and confirmation.'] },
+  { id: 'prices', h: '2. Prices and GST', ps: ['Prices are per guest in Indian rupees unless your written quote says otherwise. GST is charged as applicable and shown on your invoice. Inclusions and exclusions are listed in your written itinerary and confirmation.', 'Early-booking offer, Dev Deepawali in Varanasi 2026: 20% off the per-guest price when your 30% reservation payment reaches us by 11:59 PM IST on 8 November 2026. The discounted price is shown on your written confirmation, and the balance is still due by 9 November 2026.'] },
   { id: 'booking', h: '3. Booking and payment', ps: [[
     'Your place is confirmed when we receive 30% of the journey cost and send you written confirmation.',
     'The balance of 70% is due 14 days before departure. For Dev Deepawali in Varanasi 2026, the balance is due by 9 November 2026.',

@@ -13,6 +13,13 @@ export default function Layout({ variant = 'home', children }) {
   useStarOrbit();
   useEffect(() => initMobileMenu(), []);
   useEffect(() => initLinkTracking(), []);
+  // time-limited content (an offer) carries data-until="<ISO date>"; once that moment has passed it is removed
+  useEffect(() => {
+    document.querySelectorAll('[data-until]').forEach((el) => {
+      const end = Date.parse(el.getAttribute('data-until'));
+      if (end && Date.now() > end) el.remove();
+    });
+  }, []);
   return (
     <>
       <a className="tuc-skip" href="#main">Skip to content</a>
