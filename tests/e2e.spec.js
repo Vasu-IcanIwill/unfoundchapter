@@ -453,7 +453,12 @@ test('SEO basics: canonical, Open Graph, robots and sitemap', async ({ page, req
     const sitemap = await request.get('/sitemap.xml');
     expect(sitemap.status()).toBe(200);
     expect(await sitemap.text()).toContain('/dev-diwali.html');
+    const ld = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent());
+    const types = ld['@graph'].map((n) => n['@type']);
+    expect(types).toEqual(expect.arrayContaining(['TravelAgency', 'TouristTrip', 'BreadcrumbList']));
   }
+  expect(await page.locator('link[rel="apple-touch-icon"]').getAttribute('href')).toBe('/apple-touch-icon.png');
+  expect(await page.locator('meta[name="robots"]').getAttribute('content')).toContain('index');
   const robots = await request.get('/robots.txt');
   expect(robots.status()).toBe(200);
   expect(await page.locator('meta[property="og:title"]').getAttribute('content')).toContain('Dev Deepawali');

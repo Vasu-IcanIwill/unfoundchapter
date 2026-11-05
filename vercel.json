@@ -23,6 +23,12 @@
     }
   ],
   "redirects": [
-    { "source": "/index.html", "destination": "/", "permanent": true }
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "unfound-chapter.vercel.app" }],
+      "destination": "https://www.unfoundchapter.com/:path*",
+      "permanent": true
+    }
   ]
 }

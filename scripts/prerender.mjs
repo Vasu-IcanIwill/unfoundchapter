@@ -64,6 +64,70 @@ const inlineCss = (html) => html.replace(/<link rel="stylesheet"[^>]*href="(\/as
   return `<style>${css}</style>`;
 });
 
+// Structured data (schema.org JSON-LD) so search engines understand the brand and the trip.
+// Facts here must match the visible pages; update both together.
+function jsonLd(name) {
+  const org = {
+    '@type': 'TravelAgency',
+    '@id': `${siteUrl}/#org`,
+    name: 'Unfound Chapter',
+    legalName: 'Bitmartian Softech Private Limited',
+    url: `${siteUrl}/`,
+    logo: `${siteUrl}/logo-512.png`,
+    image: `${siteUrl}/og-uc.png`,
+    description: 'Luxury private journeys across India, planned by hand for a small circle of guests.',
+    slogan: 'Curated journeys · Meaningful experiences',
+    email: 'hello@unfoundchapter.com',
+    telephone: '+91 91477 46406',
+    taxID: '08AALCB9623J1Z8',
+    areaServed: { '@type': 'Country', name: 'India' },
+  };
+  const website = { '@type': 'WebSite', '@id': `${siteUrl}/#website`, url: `${siteUrl}/`, name: 'Unfound Chapter', inLanguage: 'en-IN', publisher: { '@id': `${siteUrl}/#org` } };
+  const graph = name === 'index' ? [org, website] : [org];
+  if (name === 'dev-diwali') {
+    const url = `${siteUrl}/dev-diwali.html`;
+    graph.push({
+      '@type': 'TouristTrip',
+      '@id': `${url}#trip`,
+      name: 'Dev Deepawali (Dev Diwali) in Varanasi, 2026',
+      description: 'Three days and two nights in Varanasi for Dev Deepawali on Kartik Purnima, limited to 10 guests: a stay at Om Vilas Resort, the Ganga Aarti by boat, ten courses at Aangan, and ghat to ghat with high tea on the waters as the city lights up.',
+      url,
+      image: `${siteUrl}/og-uc.png`,
+      inLanguage: 'en-IN',
+      touristType: 'Small group',
+      departureTime: '2026-11-23',
+      arrivalTime: '2026-11-25',
+      provider: { '@id': `${siteUrl}/#org` },
+      itinerary: {
+        '@type': 'ItemList',
+        numberOfItems: 3,
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, item: { '@type': 'TouristDestination', name: 'Day 1 · Monday 23 November · Arrival', description: 'Check in at Om Vilas and henna at the resort, a temple visit and guided heritage walk, the laser show, the Ganga Aarti by boat, ten courses at Aangan, and the Shayan Aarti with VIP entry.' } },
+          { '@type': 'ListItem', position: 2, item: { '@type': 'TouristDestination', name: 'Day 2 · Tuesday 24 November · Dev Deepawali', description: 'A slow morning at the resort, then boarding at 4 PM for ghat to ghat with chai and Banarasi chaat, and high tea on the waters as the city lights up.' } },
+          { '@type': 'ListItem', position: 3, item: { '@type': 'TouristDestination', name: 'Day 3 · Wednesday 25 November · Farewell', description: 'Time in the old market for a Banarasi silk, then a private transfer to the airport or station.' } },
+        ],
+      },
+      offers: {
+        '@type': 'Offer',
+        url: `${siteUrl}/contact.html?journey=dev-diwali`,
+        priceCurrency: 'INR',
+        availability: 'https://schema.org/LimitedAvailability',
+        validThrough: '2026-11-09',
+        seller: { '@id': `${siteUrl}/#org` },
+      },
+    });
+    graph.push({
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${siteUrl}/` },
+        { '@type': 'ListItem', position: 2, name: 'Dev Deepawali in Varanasi', item: url },
+      ],
+    });
+  }
+  const json = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
+  return `    <script type="application/ld+json">${json}</script>\n  `;
+}
+
 const pages = ['index', 'dev-diwali', 'contact', 'terms', 'privacy', '404'];
 for (const name of pages) {
   const file = resolve(dist, `${name}.html`);
@@ -81,6 +145,7 @@ for (const name of pages) {
   if (name === 'index') html = html.replace('<!--preload-fonts-->', '');
   if (siteUrl) html = html.split('%SITE_URL%').join(siteUrl);
   else html = html.replace(/\s*<link rel="canonical"[^>]*>/, '').replace(/\s*<meta property="og:url"[^>]*>/, '').replace(/\s*<meta property="og:image(:\w+)?"[^>]*>/g, '');
+  if (siteUrl && name !== '404') html = html.replace('</head>', `${jsonLd(name)}</head>`);
   if (html.includes('%SITE_URL%')) throw new Error(`${name}.html: unresolved %SITE_URL%`);
   writeFileSync(file, html);
   console.log(`[prerender] ${name}.html (${(app.length / 1024).toFixed(1)} KB of markup)`);
