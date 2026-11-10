@@ -112,11 +112,13 @@ test('the Itinerary link opens the itinerary walk, which moves as you scroll', a
   await page.locator('.tuc-menu-list a', { hasText: 'Itinerary' }).click();
   await expect(page).toHaveURL(/\/itinerary\.html$/);
   await expect(page.locator('.iw-walk')).toHaveClass(/is-live/);
-  await expect(page.locator('.iw-stop')).toHaveCount(16);
+  await expect(page.locator('.iw-stop')).toHaveCount(10);
   const walk = await page.evaluate(() => { const w = document.querySelector('.iw-walk'); return { top: w.getBoundingClientRect().top + scrollY, h: w.offsetHeight }; });
-  await page.evaluate((y) => window.scrollTo(0, y), walk.top + (walk.h - 844) * 0.8);
-  await expect(page.locator('.iw-stop.is-on h2')).toHaveText('The night of the lamps');
-  await expect(page.locator('.iw-pct')).toHaveText('80%');
+  await page.evaluate((y) => window.scrollTo(0, y), walk.top + (walk.h - 844) * (8 / 9));
+  await expect(page.locator('.iw-pct')).toHaveText('89%');
+  await expect(page.locator('.iw-stop').nth(8)).toHaveCSS('opacity', '1');
+  await expect(page.locator('.iw-stop').nth(8).locator('.iw-card')).toHaveCSS('opacity', '1');
+  await expect(page.locator('.iw-stop').nth(8).locator('img')).toHaveJSProperty('complete', true);
   await page.locator('#iw-end').scrollIntoViewIfNeeded();
   await expect(page.locator('#iw-end a[download]')).toHaveAttribute('href', /Dev-Deepawali-Itinerary\.pdf$/);
   await c.close();
@@ -127,7 +129,7 @@ test('with reduced motion the itinerary is a plain list of stops', async ({ brow
   const page = await c.newPage();
   await page.goto('/itinerary.html');
   await expect(page.locator('.iw-walk')).not.toHaveClass(/is-live/);
-  for (const title of ['A private pick-up', 'Ganga Aarti, by boat', 'The night of the lamps', 'The close of this chapter']) await expect(page.getByRole('heading', { name: title })).toBeVisible();
+  for (const title of ['Home, for the journey', 'Ganga Aarti, by boat', 'The night of the lamps', 'A Banarasi silk, and farewell']) await expect(page.getByRole('heading', { name: title })).toBeVisible();
   await c.close();
 });
 
