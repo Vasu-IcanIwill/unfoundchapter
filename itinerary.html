@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Consent Mode: Analytics and Advertising start "denied"; Tag Manager (advertising tags) loads only once Advertising is allowed -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      (function () {
+        var c = null; try { c = JSON.parse(localStorage.getItem('tuc-consent-v2') || 'null'); } catch (e) {}
+        if (!c || c.version !== '2026-10-30') c = {};
+        var a = c.analytics ? 'granted' : 'denied', d = c.ads ? 'granted' : 'denied';
+        gtag('consent', 'default', { analytics_storage: a, ad_storage: d, ad_user_data: d, ad_personalization: d, wait_for_update: 500 });
+        gtag('set', 'ads_data_redaction', true);
+        // Tag Manager carries the advertising tags (Meta Pixel, Google Ads): load it only after Advertising is allowed
+        if (c.ads) (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-M4FVNKG7');
+        window.__tucGtm = !!c.ads;
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <title>The itinerary, a walk along the river · Dev Deepawali · Unfound Chapter</title>
+    <meta name="description" content="Walk the three days of Dev Deepawali in Varanasi, 23 to 25 November 2026, stop by stop: Om Vilas Resort, the old city, the Ganga Aarti by boat, dinner at BrijRama Palace and the night of the lamps." />
+    <link rel="canonical" href="%SITE_URL%/itinerary.html" />
+    <meta property="og:url" content="%SITE_URL%/itinerary.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Unfound Chapter" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:title" content="The itinerary, a walk along the river · Dev Deepawali · Unfound Chapter" />
+    <meta property="og:description" content="Walk the three days of Dev Deepawali in Varanasi, 23 to 25 November 2026, stop by stop: Om Vilas Resort, the old city, the Ganga Aarti by boat, dinner at BrijRama Palace and the night of the lamps." />
+    <meta property="og:image" content="%SITE_URL%/og-uc.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Unfound Chapter: curated journeys and meaningful experiences across India" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#1B2B4A" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!--preload-fonts-->
+  </head>
+  <body>
+    <div id="root"><!--app-html--></div>
+    <script type="module" src="/src/entries/itinerary.jsx"></script>
+  </body>
+</html>

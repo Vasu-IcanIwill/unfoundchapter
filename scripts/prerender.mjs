@@ -41,6 +41,7 @@ const HEADER_FONTS = ['montserrat-latin-600-normal'];
 const PAGE_FONTS = {
   index: [...HEADER_FONTS, 'brygada-1918-latin-400-normal', 'roxie-rossa', 'italianno-latin-400-normal'],
   'dev-diwali': [...HEADER_FONTS, 'brygada-1918-latin-400-italic', 'montserrat-latin-400-normal'],
+  itinerary: [...HEADER_FONTS, 'brygada-1918-latin-400-normal', 'montserrat-latin-400-normal'],
   contact: [...HEADER_FONTS, 'brygada-1918-latin-400-normal', 'italianno-latin-400-normal'],
   terms: [...HEADER_FONTS, 'brygada-1918-latin-400-normal', 'brygada-1918-latin-400-italic'],
   privacy: [...HEADER_FONTS, 'brygada-1918-latin-400-normal', 'brygada-1918-latin-400-italic'],
@@ -128,7 +129,7 @@ function jsonLd(name) {
   return `    <script type="application/ld+json">${json}</script>\n  `;
 }
 
-const pages = ['index', 'dev-diwali', 'contact', 'terms', 'privacy', '404'];
+const pages = ['index', 'dev-diwali', 'itinerary', 'contact', 'terms', 'privacy', '404'];
 for (const name of pages) {
   const file = resolve(dist, `${name}.html`);
   let html = readFileSync(file, 'utf8');
@@ -151,7 +152,7 @@ for (const name of pages) {
   console.log(`[prerender] ${name}.html (${(app.length / 1024).toFixed(1)} KB of markup)`);
 }
 
-const urls = ['/', '/dev-diwali.html', '/contact.html', '/terms.html', '/privacy.html'];
+const urls = ['/', '/dev-diwali.html', '/itinerary.html', '/contact.html', '/terms.html', '/privacy.html'];
 if (siteUrl) {
   const today = new Date().toISOString().slice(0, 10);
   writeFileSync(resolve(dist, 'sitemap.xml'),

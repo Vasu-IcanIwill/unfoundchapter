@@ -7,7 +7,7 @@ const root = fileURLToPath(new URL('.', import.meta.url));
 
 // One HTML entry per public page, so the existing URLs (/dev-diwali.html, /contact.html, ...) keep working
 // as real files: no SPA fallback, correct 404s, and page-specific metadata in the static HTML.
-export const PAGES = ['index', 'dev-diwali', 'contact', 'terms', 'privacy', '404'];
+export const PAGES = ['index', 'dev-diwali', 'contact', 'terms', 'privacy', '404', 'itinerary'];
 
 // Client production builds get an empty stand-in for the page markup (see src/content/client.js).
 function staticIslands() {

@@ -4,6 +4,7 @@ import ContactPage from './ContactPage.jsx';
 import TermsPage from './TermsPage.jsx';
 import PrivacyPage from './PrivacyPage.jsx';
 import NotFoundPage from './NotFoundPage.jsx';
+import ItineraryPage from './ItineraryPage.jsx';
 
 // page name (= HTML file name) -> component; used by the build-time prerender
 export const PAGES = {
@@ -13,4 +14,5 @@ export const PAGES = {
   terms: TermsPage,
   privacy: PrivacyPage,
   404: NotFoundPage,
+  itinerary: ItineraryPage,
 };
