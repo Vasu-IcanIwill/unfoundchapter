@@ -31,6 +31,34 @@ export default function ItineraryWalk() {
     document.documentElement.classList.add('iw-on');
     imgs.forEach((im) => { if (im) im.loading = 'eager'; });
 
+    // A photo that would have to be enlarged a lot to fill the screen is shown sharp at (close to) its own size,
+    // framed over a blurred copy of itself; large photos fill the screen.
+    const framed = new Array(n).fill(false);
+    const layout = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 3);
+      const W = stage.clientWidth; const Hs = stage.clientHeight;
+      const phone = W <= 700;
+      const top = (header ? clamp(header.getBoundingClientRect().bottom, 0, 200) : 0) + (phone ? 52 : 70);
+      scenes.forEach((sc, j) => {
+        const [nw, nh] = STOPS[j].size;
+        const stretch = Math.max((W * dpr) / nw, (Hs * dpr) / nh);
+        framed[j] = stretch > 1.35;
+        sc.classList.toggle('is-framed', framed[j]);
+        const im = imgs[j];
+        if (!framed[j]) { im.style.width = ''; im.style.height = ''; im.style.left = ''; im.style.top = ''; return; }
+        // as large as the space allows without enlarging the photo beyond 1.2x its real pixels
+        const boxW = phone ? W - 28 : W * 0.5;
+        const boxH = phone ? Math.max(160, Hs - top - cards[j].offsetHeight - 40) : Hs - top - 60;
+        const k = Math.min(boxW / nw, boxH / nh, 1.2 / dpr);
+        const w = Math.round(nw * k);
+        const h = Math.round((w * nh) / nw);
+        im.style.width = `${w}px`;
+        im.style.height = `${h}px`;
+        im.style.left = phone ? `${Math.round((W - w) / 2)}px` : `${Math.round(W * 0.47 + (W * 0.5 - w) / 2)}px`;
+        im.style.top = `${Math.round(top + (boxH - h) / 2)}px`;
+      });
+    };
+
     let raf = 0; let lastDay = '';
     const frame = () => {
       raf = 0;
@@ -46,7 +74,9 @@ export default function ItineraryWalk() {
         sc.style.opacity = op.toFixed(3);
         if (op > 0 && imgs[j]) {
           // walking forward: the photograph grows towards its focus point, faster as we pass through
-          const s = d < 0.5 ? 1 + 0.12 * clamp(d + 0.6, 0, 1.1) : 1.132 + 0.45 * (d - 0.5);
+          const s = framed[j]
+            ? (d < 0.5 ? 1 + 0.05 * clamp(d + 0.6, 0, 1.1) : 1.055 + 0.3 * (d - 0.5))
+            : (d < 0.5 ? 1 + 0.12 * clamp(d + 0.6, 0, 1.1) : 1.132 + 0.45 * (d - 0.5));
           imgs[j].style.transform = `scale(${s.toFixed(4)})`;
         }
         const c = cards[j];
@@ -61,12 +91,14 @@ export default function ItineraryWalk() {
       if (day !== lastDay) { lastDay = day; ticks.forEach((t) => t.classList.toggle('is-on', t.dataset.day === day)); }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(frame); };
+    const onResize = () => { layout(); onScroll(); };
+    layout();
     frame();
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+    window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
+      window.removeEventListener('resize', onResize);
       if (raf) cancelAnimationFrame(raf);
       walk.classList.remove('is-live');
       document.documentElement.classList.remove('iw-on');
@@ -91,6 +123,7 @@ export default function ItineraryWalk() {
               return (
                 <li key={i} className="iw-stop" style={{ '--focus': s.focus, zIndex: i + 1 }}>
                   <figure className="iw-photo">
+                    <span className="iw-blur" aria-hidden="true" style={{ backgroundImage: `url(${src(s.photo, s.w[0])})` }} />
                     <img
                       src={src(s.photo, s.w[0])}
                       srcSet={s.w.map((w) => `${src(s.photo, w)} ${w}w`).join(', ')}

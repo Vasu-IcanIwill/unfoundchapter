@@ -41,6 +41,13 @@
   radial-gradient(120% 90% at 50% 45%,rgba(0,0,0,0) 55%,rgba(0,0,0,.35) 100%)}
 .is-live .iw-card{position:absolute;left:max(24px,4vw);bottom:max(28px,6vh);width:min(470px,calc(100% - 48px));box-sizing:border-box;border:1px solid rgba(184,155,101,.55);border-radius:14px;background:rgba(251,247,239,.95);box-shadow:0 22px 50px rgba(0,0,0,.28);opacity:0;will-change:transform,opacity}
 
+/* framed: a small photo shown sharp at its own size over a blurred copy of itself */
+.iw-blur{display:none}
+.is-live .iw-blur{display:block;position:absolute;inset:-60px;background-size:cover;background-position:center;filter:blur(30px) brightness(.5) saturate(1.15);opacity:0;transition:opacity .3s}
+.is-live .is-framed .iw-blur{opacity:1}
+.is-live .is-framed .iw-photo img{position:absolute;object-fit:cover;border-radius:10px;border:1px solid rgba(230,204,148,.45);box-shadow:0 30px 70px rgba(0,0,0,.5);transform-origin:50% 50%}
+.is-live .is-framed .iw-photo::after{background:linear-gradient(180deg,rgba(10,16,30,.35) 0,rgba(10,16,30,0) 30%,rgba(10,16,30,0) 60%,rgba(10,16,30,.45) 100%)}
+
 /* heads-up: days and progress, over the photograph */
 .is-live .iw-hud{display:flex;position:absolute;z-index:40;left:max(24px,4vw);right:max(24px,4vw);top:calc(var(--hdr,0px) + 20px);align-items:center;gap:18px;color:#F3EBD8}
 .iw-days{display:flex;gap:22px}
