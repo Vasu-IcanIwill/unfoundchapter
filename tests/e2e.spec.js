@@ -104,32 +104,14 @@ test('on the group trip page the phone menu Enquire link opens the enquiry form 
   await c.close();
 });
 
-test('the Itinerary link opens the itinerary walk, which moves as you scroll', async ({ browser }) => {
+test('the phone menu Itinerary link jumps to the download button', async ({ browser }) => {
   const c = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true });
   const page = await c.newPage();
   await page.goto('/dev-diwali.html');
   await page.locator('.tuc-menu-btn').click();
   await page.locator('.tuc-menu-list a', { hasText: 'Itinerary' }).click();
-  await expect(page).toHaveURL(/\/itinerary\.html$/);
-  await expect(page.locator('.iw-walk')).toHaveClass(/is-live/);
-  await expect(page.locator('.iw-stop')).toHaveCount(15);
-  const walk = await page.evaluate(() => { const w = document.querySelector('.iw-walk'); return { top: w.getBoundingClientRect().top + scrollY, h: w.offsetHeight }; });
-  await page.evaluate((y) => window.scrollTo(0, y), walk.top + (walk.h - 844) * (13 / 14));
-  await expect(page.locator('.iw-pct')).toHaveText('93%');
-  await expect(page.locator('.iw-stop').nth(13)).toHaveCSS('opacity', '1');
-  await expect(page.locator('.iw-stop').nth(13).locator('.iw-card')).toHaveCSS('opacity', '1');
-  await expect(page.locator('.iw-stop').nth(13).locator('img')).toHaveJSProperty('complete', true);
-  await page.locator('#iw-end').scrollIntoViewIfNeeded();
-  await expect(page.locator('#iw-end a[download]')).toHaveAttribute('href', /Dev-Deepawali-Itinerary\.pdf$/);
-  await c.close();
-});
-
-test('with reduced motion the itinerary is a plain list of stops', async ({ browser }) => {
-  const c = await browser.newContext({ reducedMotion: 'reduce' });
-  const page = await c.newPage();
-  await page.goto('/itinerary.html');
-  await expect(page.locator('.iw-walk')).not.toHaveClass(/is-live/);
-  for (const title of ['Home, for the journey', 'Ganga Aarti, by boat', 'The night of the lamps', 'A Banarasi silk, and farewell']) await expect(page.getByRole('heading', { name: title })).toBeVisible();
+  await expect(page).toHaveURL(/#tuc-dl$/);
+  await expect(page.locator('#tuc-dl')).toBeInViewport();
   await c.close();
 });
 
