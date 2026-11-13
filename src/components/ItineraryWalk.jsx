@@ -59,41 +59,51 @@ export default function ItineraryWalk() {
       });
     };
 
-    let raf = 0; let lastDay = '';
-    const frame = () => {
-      raf = 0;
-      if (header) stage.style.setProperty('--hdr', `${Math.round(clamp(header.getBoundingClientRect().bottom, 0, 200))}px`);
+    let raf = 0; let lastDay = ''; let shown = -1;
+    const target = () => {
       const total = walk.offsetHeight - window.innerHeight;
-      const p = clamp(-walk.getBoundingClientRect().top / Math.max(1, total));
+      return clamp(-walk.getBoundingClientRect().top / Math.max(1, total));
+    };
+    // a soft ease between where the page is and where the walk is drawn, so steps between scroll ticks glide
+    const ease = (t) => t * t * (3 - 2 * t);
+    const draw = (p) => {
       const x = p * (n - 1);
       scenes.forEach((sc, j) => {
         const d = x - j;
-        // fade in over the scene before (we walk into it), stay, then be covered by the next one
-        const op = d < 0 ? clamp((d + 0.62) / 0.3) : (d > 1 ? 0 : 1);
-        sc.style.visibility = op > 0 ? 'visible' : 'hidden';
-        sc.style.opacity = op.toFixed(3);
-        if (op > 0 && imgs[j]) {
-          // walking forward: the photograph grows towards its focus point, faster as we pass through
-          const s = framed[j]
-            ? (d < 0.5 ? 1 + 0.05 * clamp(d + 0.6, 0, 1.1) : 1.055 + 0.3 * (d - 0.5))
-            : (d < 0.5 ? 1 + 0.12 * clamp(d + 0.6, 0, 1.1) : 1.132 + 0.45 * (d - 0.5));
-          imgs[j].style.transform = `scale(${s.toFixed(4)})`;
+        // the next place fades in over the last stretch of the one before (a slow cross-dissolve)
+        const op = d < 0 ? ease(clamp((d + 0.55) / 0.45)) : (d > 1 ? 0 : 1);
+        sc.style.visibility = op > 0.001 ? 'visible' : 'hidden';
+        sc.style.opacity = op.toFixed(4);
+        if (op > 0.001 && imgs[j]) {
+          // a gentle push forward: at most 8% while the place is on screen, so the photo never turns soft
+          const s = 1 + (framed[j] ? 0.04 : 0.08) * clamp((d + 0.55) / 1.55);
+          imgs[j].style.transform = `scale3d(${s.toFixed(5)},${s.toFixed(5)},1)`;
         }
         const c = cards[j];
-        const cv = clamp(1 - (Math.abs(d) - 0.28) / 0.14);
-        c.style.opacity = cv.toFixed(3);
-        c.style.transform = `translate3d(0,${(d * -60).toFixed(1)}px,0)`;
+        const cv = ease(clamp(1 - (Math.abs(d) - 0.26) / 0.18));
+        c.style.opacity = cv.toFixed(4);
+        c.style.transform = `translate3d(0,${(d * -40).toFixed(2)}px,0)`;
         c.style.pointerEvents = cv > 0.5 ? 'auto' : 'none';
       });
       pct.textContent = `${Math.round(p * 100)}%`;
-      bar.style.transform = `scaleX(${p})`;
+      bar.style.transform = `scaleX(${p.toFixed(4)})`;
       const day = STOPS[Math.round(x)].day;
       if (day !== lastDay) { lastDay = day; ticks.forEach((t) => t.classList.toggle('is-on', t.dataset.day === day)); }
+    };
+    const frame = () => {
+      raf = 0;
+      if (header) stage.style.setProperty('--hdr', `${Math.round(clamp(header.getBoundingClientRect().bottom, 0, 200))}px`);
+      const t = target();
+      shown = shown < 0 ? t : shown + (t - shown) * 0.14;
+      if (Math.abs(t - shown) < 0.0002) shown = t;
+      draw(shown);
+      if (shown !== t) raf = requestAnimationFrame(frame);
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(frame); };
     const onResize = () => { layout(); onScroll(); };
     layout();
-    frame();
+    shown = target();
+    draw(shown);
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
     return () => {
@@ -127,7 +137,7 @@ export default function ItineraryWalk() {
                     <img
                       src={src(s.photo, s.w[0])}
                       srcSet={s.w.map((w) => `${src(s.photo, w)} ${w}w`).join(', ')}
-                      sizes="100vw"
+                      sizes={`(orientation: portrait) ${Math.round((s.size[0] / s.size[1]) * 100)}vh, 100vw`}
                       alt={s.alt}
                       loading={i < 2 ? 'eager' : 'lazy'}
                       decoding="async"
