@@ -18,7 +18,8 @@
 .iw-hud{display:none}
 .iw-stops{list-style:none;margin:0 auto;padding:0 24px;max-width:760px;display:grid;gap:26px}
 .iw-stop{overflow:hidden;border:1px solid rgba(184,155,101,.6);border-radius:14px;background:#FBF7EF}
-.iw-photo{margin:0;aspect-ratio:3/2;overflow:hidden;background:#1B2B4A}
+.iw-photo{margin:0;aspect-ratio:3/2;overflow:hidden;background:#1B2B4A center/cover no-repeat;background-position:var(--focus,50% 50%)}
+.iw-photo picture,.iw-extras picture{display:contents}
 .iw-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:var(--focus,50% 50%)}
 .iw-card{position:relative;padding:24px 28px 26px}
 .iw-when{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;margin:0 0 10px;font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:#96745A}
@@ -34,7 +35,7 @@
 .is-live .iw-stage{position:sticky;top:0;height:100svh;overflow:hidden;background:#0E1626}
 .is-live .iw-stops{position:absolute;inset:0;margin:0;padding:0;max-width:none;display:block}
 .is-live .iw-stop{position:absolute;inset:0;border:0;border-radius:0;background:transparent;opacity:0;visibility:hidden}
-.is-live .iw-photo{position:absolute;inset:0;aspect-ratio:auto;background:#0E1626}
+.is-live .iw-photo{position:absolute;inset:0;aspect-ratio:auto;background-color:#0E1626}
 .is-live .iw-photo img{transform-origin:var(--focus,50% 50%);backface-visibility:hidden}
 .is-live .iw-photo::after{content:"";position:absolute;inset:0;pointer-events:none;background:
   linear-gradient(180deg,rgba(10,16,30,.55) 0,rgba(10,16,30,0) 26%,rgba(10,16,30,0) 52%,rgba(10,16,30,.6) 100%),
@@ -43,7 +44,7 @@
 
 /* framed: a small photo shown sharp at its own size over a blurred copy of itself */
 .iw-blur{display:none}
-.is-live .iw-blur{display:block;position:absolute;inset:-60px;background-size:cover;background-position:center;filter:blur(30px) brightness(.5) saturate(1.15);opacity:0;transition:opacity .3s}
+.is-live .iw-blur{display:block;position:absolute;inset:-60px;background-image:inherit;background-size:cover;background-position:center;filter:blur(30px) brightness(.5) saturate(1.15);opacity:0;transition:opacity .3s}
 .is-live .is-framed .iw-blur{opacity:1}
 .is-live .is-framed .iw-photo img{position:absolute;object-fit:cover;border-radius:10px;border:1px solid rgba(230,204,148,.45);box-shadow:0 30px 70px rgba(0,0,0,.5);transform-origin:50% 50%}
 .is-live .is-framed .iw-photo::after{background:linear-gradient(180deg,rgba(10,16,30,.35) 0,rgba(10,16,30,0) 30%,rgba(10,16,30,0) 60%,rgba(10,16,30,.45) 100%)}

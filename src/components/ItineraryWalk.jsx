@@ -1,10 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { DAYS, STOPS } from '../content/itinerary-walk.js';
 import { prefersReducedMotion } from '../utils/star.js';
+import IMG from '../content/walk-images.json';
 
 const DAY = Object.fromEntries(DAYS.map((d) => [d.id, d]));
 const PDF = '/docs/The-Unfound-Chapter-Dev-Deepawali-Itinerary.pdf';
-const src = (name, w) => `/walk/${name}-${w}.webp`;
+const src = (name, w, ext = 'webp') => `/walk/${name}-${w}.${ext}`;
+const set = (name, ext) => IMG[name].w.map((w) => `${src(name, w, ext)} ${w}w`).join(', ');
+// a landscape photo filling an upright phone is drawn about (width / height) x the screen height wide
+const sizesFor = (name) => { const [w, h] = IMG[name].size; return `(orientation: portrait) ${Math.round((w / h) * 100)}vh, 100vw`; };
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 
 /**
@@ -17,7 +21,9 @@ export default function ItineraryWalk() {
 
   useEffect(() => {
     const walk = ref.current;
-    if (!walk || prefersReducedMotion()) return undefined;
+    if (!walk) return undefined;
+    const restore = (el) => ['srcset', 'src'].forEach((a) => { if (el.dataset[a]) { el.setAttribute(a, el.dataset[a]); delete el.dataset[a]; } });
+    if (prefersReducedMotion()) { walk.querySelectorAll('source, img').forEach(restore); return undefined; }
     const stage = walk.querySelector('.iw-stage');
     const scenes = [...walk.querySelectorAll('.iw-stop')];
     const imgs = scenes.map((s) => s.querySelector('.iw-photo img'));
@@ -27,9 +33,13 @@ export default function ItineraryWalk() {
     const ticks = [...walk.querySelectorAll('.iw-day')];
     const header = document.querySelector('.tuc-hdr');
     const n = STOPS.length;
+    // Load only the places near where you are: the page arrives with the first two photos; the others wait in
+    // data-* and are fetched when you are within about one and a half places of them.
+    const pics = scenes.map((sc) => [...sc.querySelectorAll('source, img')]);
+    const ready = new Array(n).fill(false);
+    const wake = (j) => { if (j < 0 || j >= n || ready[j]) return; ready[j] = true; pics[j].forEach(restore); };
     walk.classList.add('is-live');
     document.documentElement.classList.add('iw-on');
-    imgs.forEach((im) => { if (im) im.loading = 'eager'; });
 
     // A photo that would have to be enlarged a lot to fill the screen is shown sharp at (close to) its own size,
     // framed over a blurred copy of itself; large photos fill the screen.
@@ -39,7 +49,7 @@ export default function ItineraryWalk() {
       const phone = W <= 700;
       const top = (header ? clamp(header.getBoundingClientRect().bottom, 0, 200) : 0) + (phone ? 52 : 70);
       scenes.forEach((sc, j) => {
-        const [nw, nh] = STOPS[j].size;
+        const [nw, nh] = IMG[STOPS[j].photo].size;
         // fill the screen unless the photo would be enlarged more than 1.5x in CSS pixels
         const stretch = Math.max(W / nw, Hs / nh);
         framed[j] = stretch > 1.5;
@@ -68,6 +78,8 @@ export default function ItineraryWalk() {
     const ease = (t) => t * t * (3 - 2 * t);
     const draw = (p) => {
       const x = p * (n - 1);
+      const near = Math.floor(x);
+      for (let j = near - 1; j <= near + 2; j += 1) wake(j);
       scenes.forEach((sc, j) => {
         const d = x - j;
         // the next place fades in over the last stretch of the one before (a slow cross-dissolve)
@@ -132,17 +144,23 @@ export default function ItineraryWalk() {
               const d = DAY[s.day];
               return (
                 <li key={i} className="iw-stop" style={{ '--focus': s.focus, zIndex: i + 1 }}>
-                  <figure className="iw-photo">
-                    <span className="iw-blur" aria-hidden="true" style={{ backgroundImage: `url(${src(s.photo, s.w[0])})` }} />
-                    <img
-                      src={src(s.photo, s.w[0])}
-                      srcSet={s.w.map((w) => `${src(s.photo, w)} ${w}w`).join(', ')}
-                      sizes={`(orientation: portrait) ${Math.round((s.size[0] / s.size[1]) * 100)}vh, 100vw`}
-                      alt={s.alt}
-                      loading={i < 2 ? 'eager' : 'lazy'}
-                      decoding="async"
-                      fetchPriority={i === 0 ? 'high' : undefined}
-                    />
+                  <figure className="iw-photo" style={{ backgroundImage: `url(${IMG[s.photo].lqip})` }}>
+                    <span className="iw-blur" aria-hidden="true" />
+                    <picture>
+                      <source type="image/avif" {...(i < 2 ? { srcSet: set(s.photo, 'avif') } : { 'data-srcset': set(s.photo, 'avif') })} sizes={sizesFor(s.photo)} />
+                      <img
+                        {...(i < 2
+                          ? { src: src(s.photo, IMG[s.photo].w[0]), srcSet: set(s.photo, 'webp') }
+                          : { 'data-src': src(s.photo, IMG[s.photo].w[0]), 'data-srcset': set(s.photo, 'webp') })}
+                        sizes={sizesFor(s.photo)}
+                        width={IMG[s.photo].size[0]}
+                        height={IMG[s.photo].size[1]}
+                        alt={s.alt}
+                        loading={i === 0 ? 'eager' : 'lazy'}
+                        decoding="async"
+                        fetchPriority={i === 0 ? 'high' : undefined}
+                      />
+                    </picture>
                   </figure>
                   <div className="iw-card">
                     <p className="iw-when"><span>{d.label} · {d.date}</span><b>{s.time}</b></p>
@@ -150,7 +168,12 @@ export default function ItineraryWalk() {
                     <p className="iw-text">{s.text}</p>
                     {s.extras ? (
                       <div className="iw-extras">
-                        {s.extras.map((e) => <img key={e.photo} src={src(e.photo, 480)} alt={e.alt} loading="lazy" decoding="async" />)}
+                        {s.extras.map((e) => (
+                          <picture key={e.photo}>
+                            <source type="image/avif" data-srcset={src(e.photo, 320, 'avif')} />
+                            <img data-src={src(e.photo, 320)} width="320" height="320" alt={e.alt} loading="lazy" decoding="async" />
+                          </picture>
+                        ))}
                       </div>
                     ) : null}
                     <span className="iw-num" aria-hidden="true">{String(i + 1).padStart(2, '0')} / {STOPS.length}</span>
