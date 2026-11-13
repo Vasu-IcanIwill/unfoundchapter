@@ -10,14 +10,39 @@ export const DAYS = [
 
 export const STOPS = [
   {
-    day: 'd1', photo: 'tents', w: [1080, 2182], size: [2182, 2499], focus: '62% 38%', time: 'On arrival', title: 'Home, for the journey',
-    text: 'A private car brings you from the station or airport to Om Vilas Resort: tented suites in gardens, lantern-lit paths, and a traditional welcome with a tilak and an aarti thali.',
-    alt: 'The white tented suites of Om Vilas Resort along a garden path',
+    day: 'd1', photo: 'ov-drone', w: [1080, 1280], size: [1280, 678], focus: '52% 55%', time: 'On arrival', title: 'Om Vilas, Benares',
+    text: 'Your home for the journey: white tented suites set in gardens, seen from above as you arrive.',
+    alt: 'An aerial view of Om Vilas Resort at dusk, rows of white tents around green lawns',
   },
   {
-    day: 'd1', photo: 'verandah', w: [813], size: [813, 697], focus: '40% 60%', time: 'Late morning', title: 'Settle in',
-    text: 'Brunch at the resort, then henna at the reception from 11 AM to 1 PM: slow, fragrant and unhurried.',
-    alt: 'A shaded verandah with cane chairs looking out over the resort lawns',
+    day: 'd1', photo: 'ov-arrival', w: [1080, 1280], size: [1280, 854], focus: '58% 60%', time: 'Pick-up and welcome', title: 'Through the gates',
+    text: 'A private car brings you from the station or airport. You are welcomed in the traditional way, with a tilak, an aarti thali and a rudraksha mala as our gift.',
+    alt: 'Vintage-style buggies parked under a tiled canopy at the Om Vilas entrance',
+  },
+  {
+    day: 'd1', photo: 'ov-dining', w: [1024], size: [1024, 683], focus: '55% 58%', time: 'Late morning', title: 'Brunch under the arches',
+    text: 'Settle in over brunch. From 11 AM to 1 PM, the resort hosts a henna session for our guests: slow, fragrant and unhurried.',
+    alt: 'The resort restaurant with semi-circular windows and tables set outside under white canopies',
+  },
+  {
+    day: 'd1', photo: 'ov-verandah', w: [1080, 1638], size: [1638, 1638], focus: '50% 62%', time: 'Your verandah', title: 'A seat in the garden',
+    text: 'Cane chairs, a marble table and lantern-lit tents across the lawn.',
+    alt: 'Cane chairs around a marble table on a tent verandah, tents and lawns beyond',
+  },
+  {
+    day: 'd1', photo: 'ov-cottages', w: [1080, 1638], size: [1638, 1638], focus: '60% 55%', time: 'The tented suites', title: 'Home, for the journey',
+    text: 'White canopied tents with their own verandahs, lawns and lantern-lit paths: a quiet retreat to return to after the river and the temples.',
+    alt: 'A row of white tented suites with verandahs along a garden path',
+  },
+  {
+    day: 'd1', photo: 'ov-suite', w: [1000], size: [1000, 667], focus: '40% 55%', time: 'Inside', title: 'Your suite',
+    text: 'Block-printed walls, warm wood and a quiet corner to sit, with an Atovio pendant, a personal air purifier, yours for the trip.',
+    alt: 'Inside a tented suite: a double bed, block-printed walls and a sofa',
+  },
+  {
+    day: 'd1', photo: 'ov-night', w: [1000], size: [1000, 667], focus: '50% 55%', time: 'Every evening', title: 'Lanterns at night',
+    text: 'The lanterns come on along the paths. Each evening ends back here, after the river and the old city.',
+    alt: 'A tented suite lit by lanterns at night',
   },
   {
     day: 'd1', photo: 'gate', w: [1080, 1536], size: [1536, 1130], focus: '50% 70%', time: '3:00 PM', title: 'Into the old city',
@@ -46,7 +71,7 @@ export const STOPS = [
   },
   {
     day: 'd2', photo: 'grounds', w: [813], size: [813, 697], focus: '50% 55%', time: '8:30 AM', title: 'A slower morning',
-    text: 'The morning is yours. Wake slowly, savour the calm of the resort and gather for brunch, before the city calls.',
+    text: 'The morning is yours. Breakfast at Vaziri, the resort’s own brewery, bar and kitchen, then a buffet lunch at Taj Nadesar Palace, a heritage palace hotel in its own gardens.',
     alt: 'Guests riding a yellow buggy past the tents at Om Vilas Resort',
   },
   {

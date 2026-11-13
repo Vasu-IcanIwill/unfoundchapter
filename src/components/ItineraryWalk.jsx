@@ -35,21 +35,21 @@ export default function ItineraryWalk() {
     // framed over a blurred copy of itself; large photos fill the screen.
     const framed = new Array(n).fill(false);
     const layout = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 3);
       const W = stage.clientWidth; const Hs = stage.clientHeight;
       const phone = W <= 700;
       const top = (header ? clamp(header.getBoundingClientRect().bottom, 0, 200) : 0) + (phone ? 52 : 70);
       scenes.forEach((sc, j) => {
         const [nw, nh] = STOPS[j].size;
-        const stretch = Math.max((W * dpr) / nw, (Hs * dpr) / nh);
-        framed[j] = stretch > 1.35;
+        // fill the screen unless the photo would be enlarged more than 1.5x in CSS pixels
+        const stretch = Math.max(W / nw, Hs / nh);
+        framed[j] = stretch > 1.5;
         sc.classList.toggle('is-framed', framed[j]);
         const im = imgs[j];
         if (!framed[j]) { im.style.width = ''; im.style.height = ''; im.style.left = ''; im.style.top = ''; return; }
         // as large as the space allows without enlarging the photo beyond 1.2x its real pixels
         const boxW = phone ? W - 28 : W * 0.5;
         const boxH = phone ? Math.max(160, Hs - top - cards[j].offsetHeight - 40) : Hs - top - 60;
-        const k = Math.min(boxW / nw, boxH / nh, 1.2 / dpr);
+        const k = Math.min(boxW / nw, boxH / nh, 1.2);
         const w = Math.round(nw * k);
         const h = Math.round((w * nh) / nw);
         im.style.width = `${w}px`;
